@@ -30,11 +30,14 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.strandls.landscape.controller.LandscapeControllerModule;
+import com.strandls.landscape.dao.DaoModule;
+import com.strandls.landscape.service.ServiceModule;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 /**
- * @author Abhishek Rudra
+ * 
+ * @author vilay
  *
  */
 public class LandscapeServeletContextListener extends GuiceServletContextListener {
@@ -69,7 +72,7 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 				serve("/api/*").with(GuiceContainer.class);
 
 			}
-		}, new LandscapeControllerModule());
+		}, new LandscapeControllerModule(), new ServiceModule(), new DaoModule());
 
 		return injector;
 
