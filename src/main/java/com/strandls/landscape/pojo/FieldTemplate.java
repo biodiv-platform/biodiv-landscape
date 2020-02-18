@@ -14,10 +14,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.swagger.annotations.ApiModel;
+
 @Entity
 @Table(name = "field_template")
 @XmlRootElement
 @JsonIgnoreProperties
+@ApiModel("FieldTemplate")
 public class FieldTemplate implements Serializable{
 
 	/**

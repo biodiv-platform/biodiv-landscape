@@ -15,10 +15,13 @@ import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.swagger.annotations.ApiModel;
+
 @Entity
 @Table(name = "template_header")
 @XmlRootElement
 @JsonIgnoreProperties
+@ApiModel("TemplateHeader")
 public class TemplateHeader implements Serializable{
 	
 	/**

@@ -23,6 +23,7 @@ import com.strandls.landscape.ApiConstants;
 import com.strandls.landscape.pojo.FieldTemplate;
 import com.strandls.landscape.service.FieldTemplateService;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -33,6 +34,7 @@ import io.swagger.annotations.ApiOperation;
  *
  */
 @Path(ApiConstants.FIELD_TEMPLATE)
+@Api("Field Template")
 public class FieldTemplateController {
 
 	private FieldTemplateService fieldTemplateService;

@@ -15,10 +15,13 @@ import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.swagger.annotations.ApiModel;
+
 @Entity
 @Table(name = "field_content")
 @XmlRootElement
 @JsonIgnoreProperties
+@ApiModel("FieldContent")
 public class FieldContent implements Serializable{
 
 	/**

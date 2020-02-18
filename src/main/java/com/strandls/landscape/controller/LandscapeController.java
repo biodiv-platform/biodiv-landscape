@@ -21,12 +21,15 @@ import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 import com.strandls.landscape.service.LandscapeService;
 import com.strandls.landscape.service.TemplateHeaderService;
 
+import io.swagger.annotations.Api;
+
 /**
  * 
  * @author vilay
  *
  */
 @Path(ApiConstants.LANDSCAPE)
+@Api("Landscape")
 public class LandscapeController {
 
 	@Inject

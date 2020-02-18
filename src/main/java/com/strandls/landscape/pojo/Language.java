@@ -13,10 +13,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.swagger.annotations.ApiModel;
+
 @Entity
 @Table(name = "language")
 @XmlRootElement
 @JsonIgnoreProperties
+@ApiModel("Language")
 public class Language implements Serializable{
 
 	/**

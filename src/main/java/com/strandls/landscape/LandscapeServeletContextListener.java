@@ -16,7 +16,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletContextEvent;
 
@@ -67,9 +69,13 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 
 				ObjectMapper objectMapper = new ObjectMapper();
 				bind(ObjectMapper.class).toInstance(objectMapper);
+				
+				Map<String, String> props = new HashMap<String, String>();
+				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
+				props.put("jersey.config.server.wadl.disableWadl", "true");
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
-				serve("/api/*").with(GuiceContainer.class);
+				serve("/api/*").with(GuiceContainer.class, props);
 
 			}
 		}, new LandscapeControllerModule(), new ServiceModule(), new DaoModule());

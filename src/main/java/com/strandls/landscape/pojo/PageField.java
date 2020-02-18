@@ -14,6 +14,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.swagger.annotations.ApiModel;
+
 /**
  * This class represent the each page field with its template id, protected area id
  * @author vilay
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Table(name = "page_field")
 @XmlRootElement
 @JsonIgnoreProperties
+@ApiModel("PageField")
 public class PageField implements Serializable{
 
 	/**
