@@ -3,6 +3,8 @@
  */
 package com.strandls.landscape.controller;
 
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -54,6 +56,15 @@ public class LandscapeController {
 	public Response getLandScape(@PathParam("protectedAreaId") Long id, @QueryParam("languageId")Long languageId) {
 		TemplateTreeStructure treeStructure = landscapeService.getPageStructure(id, languageId);
 		return Response.ok().entity(treeStructure).build();
+	}
+	
+	@GET
+	@Path("template/header")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Add template header")
+	public Response getTemplateHeader(@QueryParam("languageId") Long languageId) {
+		List<TemplateHeader> templateHeaders = templateHeaderService.getByPropertyWithCondtion("languageId", languageId, "=", -1, -1);
+		return Response.ok().entity(templateHeaders).build();
 	}
 
 	@POST
