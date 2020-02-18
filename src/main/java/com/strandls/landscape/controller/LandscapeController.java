@@ -22,6 +22,7 @@ import com.strandls.landscape.service.LandscapeService;
 import com.strandls.landscape.service.TemplateHeaderService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * 
@@ -49,6 +50,7 @@ public class LandscapeController {
 	@Path("{protectedAreaId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the landscape model", response = TemplateTreeStructure.class)
 	public Response getLandScape(@PathParam("protectedAreaId") Long id, @QueryParam("languageId")Long languageId) {
 		TemplateTreeStructure treeStructure = landscapeService.getPageStructure(id, languageId);
 		return Response.ok().entity(treeStructure).build();
@@ -57,6 +59,7 @@ public class LandscapeController {
 	@POST
 	@Path("field/content")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Add field content to Landscape", response = TemplateTreeStructure.class)
 	public Response addField(@QueryParam("protectedAreaId") Long protectedAreaId,
 			@QueryParam("languageId") Long languageId, @QueryParam("templateId") Long templateId,
 			@QueryParam("content") String content) {
@@ -67,7 +70,8 @@ public class LandscapeController {
 	@POST
 	@Path("template/header")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response addTemplate(@QueryParam("templateId") Long templateId, @QueryParam("languageId") Long languageId,
+	@ApiOperation(value = "Add template header", response = TemplateTreeStructure.class)
+	public Response addTemplateHeader(@QueryParam("templateId") Long templateId, @QueryParam("languageId") Long languageId,
 			@QueryParam("header") String header) {
 		TemplateHeader templateHeader = new TemplateHeader();
 		templateHeader.setTemplateId(templateId);

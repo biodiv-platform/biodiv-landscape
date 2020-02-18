@@ -3,6 +3,9 @@ package com.strandls.landscape.pojo.response;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel("TemplateTreeStructure")
 public class TemplateTreeStructure {
 
 	private Long id;
