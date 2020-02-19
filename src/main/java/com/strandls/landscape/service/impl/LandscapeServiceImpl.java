@@ -1,10 +1,13 @@
 package com.strandls.landscape.service.impl;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONException;
@@ -48,14 +51,10 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 
 	public TemplateTreeStructure getPageStructure(Long protectedAreaId, Long languageId) {
 
-		List<PageField> pageFields = pageFieldService.getByPropertyWithCondtion("protectedAreaId", protectedAreaId, "=",
-				-1, -1);
-
 		List<FieldTemplate> fieldTemplate = fieldTemplateService.findAll();
 
+		// sent -1 as template Id as initial parentId
 		TemplateTreeStructure treeStructure = getTreeStructure(fieldTemplate, -1L, languageId, protectedAreaId);
-		System.out.println(treeStructure + "" + pageFields);
-
 		return treeStructure;
 	}
 
@@ -89,9 +88,11 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		}
 		PageField pageField = pageFieldService.getPageField(protectedAreaId, templateId);
 		if (pageField != null) {
-			FieldContent fieldContent = fieldContentService.getFieldContent(pageField.getId(), languageId);
-			if (fieldContent != null) {
+			try {
+				FieldContent fieldContent = fieldContentService.getFieldContent(pageField.getId(), languageId);
 				treeStructure.setContent(fieldContent.getContent());
+			} catch (NoResultException e) {
+				treeStructure.setContent("");
 			}
 		}
 
@@ -106,10 +107,13 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	public TemplateTreeStructure saveField(HttpServletRequest request, String jsonString)
 			throws JSONException, JsonParseException, JsonMappingException, IOException {
 		JSONObject jsonObject = new JSONObject(jsonString);
-		Long languageId = Long.parseLong(jsonObject.remove("languageId").toString());
-		String content = jsonObject.remove("content").toString();
+		Long languageId = Long.parseLong(jsonObject.get("languageId").toString());
+		String content = jsonObject.get("content").toString();
+		Long templateId = Long.parseLong(jsonObject.get("templateId").toString());
+		Long protectedAreaId = Long.parseLong(jsonObject.get("protectedAreaId").toString());
 
-		PageField pageField = pageFieldService.save(jsonObject.toString());
+		// PageField pageField = pageFieldService.save(jsonObject.toString());
+		PageField pageField = pageFieldService.getPageField(protectedAreaId, templateId);
 		fieldContentService.save(new FieldContent(null, pageField.getId(), languageId, content, false));
 
 		TemplateTreeStructure rootNode = new TemplateTreeStructure(pageField.getTemplateId());
@@ -123,6 +127,14 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	public Landscape save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
 		Landscape landscape = objectMapper.readValue(jsonString, Landscape.class);
 		landscape = save(landscape);
+
+		List<FieldTemplate> fieldTemplates = fieldTemplateService.findAll();
+		Long authorId = null;
+		Timestamp timestamp = new Timestamp(new Date().getTime());
+		for (FieldTemplate fieldTemplate : fieldTemplates) {
+			pageFieldService.save(new PageField(null, fieldTemplate.getId(), landscape.getId(), authorId, timestamp,
+					timestamp, false));
+		}
 		return landscape;
 	}
 }
