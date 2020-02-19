@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
-import com.strandls.landscape.controller.LandscapeControllerModule;
+import com.strandls.landscape.controller.ControllerModule;
 import com.strandls.landscape.dao.DaoModule;
 import com.strandls.landscape.service.ServiceModule;
 import com.sun.jersey.guice.JerseyServletModule;
@@ -78,7 +78,7 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 				serve("/api/*").with(GuiceContainer.class, props);
 
 			}
-		}, new LandscapeControllerModule(), new ServiceModule(), new DaoModule());
+		}, new ControllerModule(), new ServiceModule(), new DaoModule());
 
 		return injector;
 

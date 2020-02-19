@@ -11,10 +11,11 @@ import com.strandls.landscape.pojo.PageField;
 import com.strandls.landscape.service.AbstractService;
 import com.strandls.landscape.service.PageFieldService;
 
-public class PageFieldServiceImpl extends AbstractService<PageField> implements PageFieldService{
+public class PageFieldServiceImpl extends AbstractService<PageField> implements PageFieldService {
 
-	@Inject private ObjectMapper objectMapper;
-	
+	@Inject
+	private ObjectMapper objectMapper;
+
 	@Inject
 	public PageFieldServiceImpl(PageFieldDao dao) {
 		super(dao);
@@ -22,7 +23,7 @@ public class PageFieldServiceImpl extends AbstractService<PageField> implements 
 
 	@Override
 	public PageField save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
-		PageField pageField = objectMapper.readValue(jsonString, PageField.class);	
+		PageField pageField = objectMapper.readValue(jsonString, PageField.class);
 		pageField = save(pageField);
 		return pageField;
 	}

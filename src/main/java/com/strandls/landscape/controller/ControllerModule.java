@@ -11,10 +11,11 @@ import com.google.inject.Scopes;
  * @author vilay
  *
  */
-public class LandscapeControllerModule extends AbstractModule {
+public class ControllerModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		bind(LanguageController.class).in(Scopes.SINGLETON);
 		bind(LandscapeController.class).in(Scopes.SINGLETON);
 		bind(FieldTemplateController.class).in(Scopes.SINGLETON);
 	}

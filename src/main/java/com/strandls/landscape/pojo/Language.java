@@ -48,4 +48,65 @@ public class Language implements Serializable{
 	@Column(name = "region")
 	private String region;
 	
+	public Language() {
+	}
+
+	public Language(Long id, String name, String threeLetterCode, String twoLetterCode, Boolean isDirty,
+			String region) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.threeLetterCode = threeLetterCode;
+		this.twoLetterCode = twoLetterCode;
+		this.isDirty = isDirty;
+		this.region = region;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getThreeLetterCode() {
+		return threeLetterCode;
+	}
+
+	public void setThreeLetterCode(String threeLetterCode) {
+		this.threeLetterCode = threeLetterCode;
+	}
+
+	public String getTwoLetterCode() {
+		return twoLetterCode;
+	}
+
+	public void setTwoLetterCode(String twoLetterCode) {
+		this.twoLetterCode = twoLetterCode;
+	}
+
+	public Boolean getIsDirty() {
+		return isDirty;
+	}
+
+	public void setIsDirty(Boolean isDirty) {
+		this.isDirty = isDirty;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
 }
