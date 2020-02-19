@@ -7,6 +7,7 @@ public class DaoModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		bind(LandscapeDao.class).in(Scopes.SINGLETON);
 		bind(FieldContentDao.class).in(Scopes.SINGLETON);
 		bind(FieldTemplateDao.class).in(Scopes.SINGLETON);
 		bind(PageFieldDao.class).in(Scopes.SINGLETON);

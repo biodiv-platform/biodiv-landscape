@@ -1,23 +1,37 @@
 package com.strandls.landscape.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import com.strandls.landscape.dao.LandscapeDao;
 import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.pojo.FieldTemplate;
+import com.strandls.landscape.pojo.Landscape;
 import com.strandls.landscape.pojo.PageField;
 import com.strandls.landscape.pojo.TemplateHeader;
 import com.strandls.landscape.pojo.response.TemplateTreeStructure;
+import com.strandls.landscape.service.AbstractService;
 import com.strandls.landscape.service.FieldContentService;
 import com.strandls.landscape.service.FieldTemplateService;
 import com.strandls.landscape.service.LandscapeService;
 import com.strandls.landscape.service.PageFieldService;
 import com.strandls.landscape.service.TemplateHeaderService;
 
-public class LandscapeServiceImpl implements LandscapeService {
+public class LandscapeServiceImpl extends AbstractService<Landscape> implements LandscapeService {
 
+	@Inject
+	private ObjectMapper objectMapper;
 	@Inject
 	private PageFieldService pageFieldService;
 	@Inject
@@ -26,6 +40,11 @@ public class LandscapeServiceImpl implements LandscapeService {
 	private FieldTemplateService fieldTemplateService;
 	@Inject
 	private TemplateHeaderService templateHeaderService;
+
+	@Inject
+	public LandscapeServiceImpl(LandscapeDao dao) {
+		super(dao);
+	}
 
 	public TemplateTreeStructure getPageStructure(Long protectedAreaId, Long languageId) {
 
@@ -63,7 +82,7 @@ public class LandscapeServiceImpl implements LandscapeService {
 					.addChild(getTreeStructure(fieldTemplates, fieldTemplate.getId(), languageId, protectedAreaId));
 		}
 
-		if(templateId == -1L) {
+		if (templateId == -1L) {
 			treeStructure.setHeader("root");
 			treeStructure.setContent("root");
 			return treeStructure;
@@ -84,15 +103,26 @@ public class LandscapeServiceImpl implements LandscapeService {
 	}
 
 	@Override
-	public TemplateTreeStructure saveField(Long protectedAreaId, Long languageId, Long templateId, String content) {
-		PageField pageField = pageFieldService
-				.save(new PageField(null, templateId, protectedAreaId, null, null, null, false));
+	public TemplateTreeStructure saveField(HttpServletRequest request, String jsonString)
+			throws JSONException, JsonParseException, JsonMappingException, IOException {
+		JSONObject jsonObject = new JSONObject(jsonString);
+		Long languageId = Long.parseLong(jsonObject.remove("languageId").toString());
+		String content = jsonObject.remove("content").toString();
+
+		PageField pageField = pageFieldService.save(jsonObject.toString());
 		fieldContentService.save(new FieldContent(null, pageField.getId(), languageId, content, false));
 
-		TemplateTreeStructure rootNode = new TemplateTreeStructure(templateId);
-		TemplateHeader header = templateHeaderService.getHeader(templateId, languageId);
+		TemplateTreeStructure rootNode = new TemplateTreeStructure(pageField.getTemplateId());
+		TemplateHeader header = templateHeaderService.getHeader(pageField.getTemplateId(), languageId);
 		rootNode.setHeader(header.getHeader());
 		rootNode.setContent(content);
 		return rootNode;
+	}
+
+	@Override
+	public Landscape save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
+		Landscape landscape = objectMapper.readValue(jsonString, Landscape.class);
+		landscape = save(landscape);
+		return landscape;
 	}
 }
