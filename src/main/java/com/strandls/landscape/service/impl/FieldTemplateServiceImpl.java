@@ -35,12 +35,18 @@ public class FieldTemplateServiceImpl extends AbstractService<FieldTemplate> imp
 	 * Here we need to add the fields for all the protected areas.
 	 */
 	public FieldTemplate save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
-		FieldTemplate fieldTemplate = objectMapper.readValue(jsonString, FieldTemplate.class);	
+		FieldTemplate fieldTemplate = objectMapper.readValue(jsonString, FieldTemplate.class);
+		Timestamp timestamp = new Timestamp(new Date().getTime());
+		if(fieldTemplate.getCreatedOn() == null)
+			fieldTemplate.setCreatedOn(timestamp);
+		if(fieldTemplate.getModifiedOn() == null)
+			fieldTemplate.setModifiedOn(timestamp);
+		fieldTemplate.setIsDeleted(false);
+		
 		fieldTemplate = save(fieldTemplate);
 
 		List<Landscape> landscapes = landscapeService.findAll();
 		Long authorId = null;
-		Timestamp timestamp = new Timestamp(new Date().getTime());
 		for(Landscape landscape : landscapes) {
 			pageFieldService.save(new PageField(null, fieldTemplate.getId(), landscape.getId(), authorId, timestamp, timestamp, false));
 		}

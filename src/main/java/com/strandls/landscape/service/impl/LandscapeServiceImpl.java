@@ -87,11 +87,11 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 			return treeStructure;
 		}
 		PageField pageField = pageFieldService.getPageField(protectedAreaId, templateId);
+		treeStructure.setPageFieldId(pageField.getId());
 		if (pageField != null) {
 			try {
 				FieldContent fieldContent = fieldContentService.getFieldContent(pageField.getId(), languageId);
 				treeStructure.setContent(fieldContent.getContent());
-				treeStructure.setPageFieldId(pageField.getId());
 			} catch (NoResultException e) {
 				treeStructure.setContent("");
 			}
