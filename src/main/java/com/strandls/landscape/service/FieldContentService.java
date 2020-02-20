@@ -14,7 +14,6 @@ public interface FieldContentService {
 	public FieldContent findById(Long id);
 	public FieldContent findByPropertyWithCondtion(String property, String value, String condition);
 	
-	public FieldContent save(String jsonString) throws JsonParseException, JsonMappingException, IOException;
 	public FieldContent save(FieldContent entity);
 	public FieldContent update(FieldContent entity);
 	public FieldContent delete(Long id);

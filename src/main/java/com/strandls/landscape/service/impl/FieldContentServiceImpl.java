@@ -2,6 +2,8 @@ package com.strandls.landscape.service.impl;
 
 import java.io.IOException;
 
+import javax.persistence.NoResultException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,13 +24,6 @@ public class FieldContentServiceImpl extends AbstractService<FieldContent> imple
 	public FieldContentServiceImpl(FieldContentDao dao) {
 		super(dao);
 	}
-
-	@Override
-	public FieldContent save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
-		FieldContent fieldContent = objectMapper.readValue(jsonString, FieldContent.class);	
-		fieldContent = save(fieldContent);
-		return fieldContent;
-	}
 	
 	@Override
 	public FieldContent update(String jsonString) throws JsonParseException, JsonMappingException, IOException, JSONException {
@@ -37,10 +32,15 @@ public class FieldContentServiceImpl extends AbstractService<FieldContent> imple
 		Long languageId = jsonObject.getLong("languageId");
 		String content = jsonObject.getString("content");
 		
-		FieldContent fieldContent = getFieldContent(id, languageId);
-		fieldContent.setContent(content);
-		fieldContent = update(fieldContent);
-		
+		FieldContent fieldContent;
+		try {
+			fieldContent = getFieldContent(id, languageId);
+			fieldContent.setContent(content);
+			fieldContent = update(fieldContent);
+		} catch(NoResultException e) {
+			fieldContent = new FieldContent(null, id, languageId, content, false);
+			fieldContent = save(fieldContent);
+		}
 		return fieldContent;
 	}
 

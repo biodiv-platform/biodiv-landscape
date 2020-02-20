@@ -127,15 +127,14 @@ public class LandscapeController {
 	}
 
 	@POST
-	@Path("field/content")
+	@Path("template/header")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Add field content to Landscape", response = TemplateTreeStructure.class)
-	public Response addField(@Context HttpServletRequest request, String jsonString) {
-
+	@ApiOperation(value = "Add template header", response = TemplateHeader.class)
+	public Response addTemplateHeader(@Context HttpServletRequest request, String jsonString) {
 		try {
-			TemplateTreeStructure rootNode = landscapeService.saveField(request, jsonString);
-			return Response.ok().entity(rootNode).build();
-		} catch (JSONException | IOException e) {
+			TemplateHeader templateHeader = templateHeaderService.save(jsonString);
+			return Response.ok().entity(templateHeader).build();
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
@@ -151,20 +150,6 @@ public class LandscapeController {
 			FieldContent fieldContent = fieldContentService.update(jsonString);
 			return Response.ok().entity(fieldContent).build();
 		} catch (JSONException | IOException e) {
-			e.printStackTrace();
-			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
-		}
-	}
-
-	@POST
-	@Path("template/header")
-	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Add template header", response = TemplateHeader.class)
-	public Response addTemplateHeader(@Context HttpServletRequest request, String jsonString) {
-		try {
-			TemplateHeader templateHeader = templateHeaderService.save(jsonString);
-			return Response.ok().entity(templateHeader).build();
-		} catch (IOException e) {
 			e.printStackTrace();
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
