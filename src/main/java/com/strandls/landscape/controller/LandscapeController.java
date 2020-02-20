@@ -59,10 +59,20 @@ public class LandscapeController {
 	}
 
 	@GET
-	@Path("{protectedAreaId}")
+	@Path("{id}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the landscape model", response = TemplateTreeStructure.class)
+	public Response getLandScape(@PathParam("id") Long id) {
+		Landscape landscape = landscapeService.findById(id);
+		return Response.ok().entity(landscape).build();
+	}
+	
+	@GET
+	@Path("show/{protectedAreaId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the show page data for landscape model", response = TemplateTreeStructure.class)
 	public Response getLandScape(@PathParam("protectedAreaId") Long id, @QueryParam("languageId") Long languageId) {
 		TemplateTreeStructure treeStructure = landscapeService.getPageStructure(id, languageId);
 		return Response.ok().entity(treeStructure).build();
