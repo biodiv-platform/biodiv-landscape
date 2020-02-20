@@ -2,6 +2,9 @@ package com.strandls.landscape.service.impl;
 
 import java.io.IOException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +27,20 @@ public class FieldContentServiceImpl extends AbstractService<FieldContent> imple
 	public FieldContent save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
 		FieldContent fieldContent = objectMapper.readValue(jsonString, FieldContent.class);	
 		fieldContent = save(fieldContent);
+		return fieldContent;
+	}
+	
+	@Override
+	public FieldContent update(String jsonString) throws JsonParseException, JsonMappingException, IOException, JSONException {
+		JSONObject jsonObject = new JSONObject(jsonString);
+		Long id = jsonObject.getLong("id");
+		Long languageId = jsonObject.getLong("languageId");
+		String content = jsonObject.getString("content");
+		
+		FieldContent fieldContent = getFieldContent(id, languageId);
+		fieldContent.setContent(content);
+		fieldContent = update(fieldContent);
+		
 		return fieldContent;
 	}
 

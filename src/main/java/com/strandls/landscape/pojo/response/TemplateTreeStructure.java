@@ -10,6 +10,8 @@ public class TemplateTreeStructure {
 
 	private Long id;
 	
+	private Long pageFieldId;
+	
 	private String header;
 
 	private String content;
@@ -26,6 +28,13 @@ public class TemplateTreeStructure {
 
 	public Long getId() {
 		return id;
+	}
+	
+	public Long getPageFieldId() {
+		return pageFieldId;
+	}
+	public void setPageFieldId(Long pageFieldId) {
+		this.pageFieldId = pageFieldId;
 	}
 	
 	public String getHeader() {

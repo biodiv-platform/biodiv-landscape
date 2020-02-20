@@ -91,6 +91,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 			try {
 				FieldContent fieldContent = fieldContentService.getFieldContent(pageField.getId(), languageId);
 				treeStructure.setContent(fieldContent.getContent());
+				treeStructure.setPageFieldId(pageField.getId());
 			} catch (NoResultException e) {
 				treeStructure.setContent("");
 			}

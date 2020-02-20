@@ -11,6 +11,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -25,9 +26,11 @@ import org.json.JSONException;
 
 import com.google.inject.Inject;
 import com.strandls.landscape.ApiConstants;
+import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.pojo.Landscape;
 import com.strandls.landscape.pojo.TemplateHeader;
 import com.strandls.landscape.pojo.response.TemplateTreeStructure;
+import com.strandls.landscape.service.FieldContentService;
 import com.strandls.landscape.service.LandscapeService;
 import com.strandls.landscape.service.TemplateHeaderService;
 
@@ -50,6 +53,9 @@ public class LandscapeController {
 
 	@Inject
 	private TemplateHeaderService templateHeaderService;
+	
+	@Inject
+	private FieldContentService fieldContentService;
 
 	@GET
 	@Path(ApiConstants.PING)
@@ -129,6 +135,21 @@ public class LandscapeController {
 		try {
 			TemplateTreeStructure rootNode = landscapeService.saveField(request, jsonString);
 			return Response.ok().entity(rootNode).build();
+		} catch (JSONException | IOException e) {
+			e.printStackTrace();
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
+		}
+	}
+	
+	@PUT
+	@Path("field/content")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "update field content to Landscape", response = TemplateTreeStructure.class)
+	public Response updateField(@Context HttpServletRequest request, String jsonString) {
+
+		try {
+			FieldContent fieldContent = fieldContentService.update(jsonString);
+			return Response.ok().entity(fieldContent).build();
 		} catch (JSONException | IOException e) {
 			e.printStackTrace();
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
