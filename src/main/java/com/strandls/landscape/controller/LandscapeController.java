@@ -6,6 +6,7 @@ package com.strandls.landscape.controller;
 import java.io.IOException;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -24,7 +25,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.json.JSONException;
 
-import com.google.inject.Inject;
+import com.strandls.geoentities.ApiException;
 import com.strandls.landscape.ApiConstants;
 import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.pojo.Landscape;
@@ -106,7 +107,7 @@ public class LandscapeController {
 	@ApiOperation(value = "Save the landscape page", response = Landscape.class)
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
-	public Response save(@Context HttpServletRequest request, String jsonString) {
+	public Response save(@Context HttpServletRequest request, String jsonString) throws JSONException, ApiException {
 		try {
 			Landscape landscape = landscapeService.save(jsonString);
 			return Response.status(Status.CREATED).entity(landscape).build();
@@ -140,6 +141,21 @@ public class LandscapeController {
 		}
 	}
 	
+	@POST
+	@Path("field/content")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "update field content to Landscape", response = TemplateTreeStructure.class)
+	public Response saveField(@Context HttpServletRequest request, String jsonString) {
+
+		try {
+			TemplateTreeStructure node = landscapeService.saveField(request, jsonString);
+			return Response.ok().entity(node).build();
+		} catch (JSONException | IOException e) {
+			e.printStackTrace();
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
+		}
+	}
+	
 	@PUT
 	@Path("field/content")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -153,5 +169,40 @@ public class LandscapeController {
 			e.printStackTrace();
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
+	}
+	
+	@GET
+	@Path("wkt")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON) 
+	public Response getWKT(@QueryParam("protectedAreaId") Long protectedAreaId) throws ApiException{
+		if(protectedAreaId == null) {
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
+		}
+		String wkt = landscapeService.getWKT(protectedAreaId);
+		return Response.ok().entity(wkt).build();
+	}
+	
+	@PUT
+	@Path("wkt")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON) 
+	public Response updateWKT(@QueryParam("protectedAreaId") Long protectedAreaId,
+			@QueryParam("wkt") String wkt) throws ApiException{
+		if(protectedAreaId == null || wkt == null) {
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
+		}
+		Landscape landscape = landscapeService.updateWKT(protectedAreaId, wkt);
+		return Response.ok().entity(landscape).build();
+	}
+	
+	@GET
+	@Path("boundingBox/{protectedAreaId}")
+	@Consumes(MediaType.TEXT_HTML)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "update field content to Landscape", response = TemplateTreeStructure.class)
+	public Response getBoundingBox(@PathParam("protectedAreaId") Long protectedAreaId) throws ApiException {
+		List<List<Object>> boundingBox = landscapeService.getBoundingBox(protectedAreaId);
+		return Response.ok().entity(boundingBox).build();
 	}
 }

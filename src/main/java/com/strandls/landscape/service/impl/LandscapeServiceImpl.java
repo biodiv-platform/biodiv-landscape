@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,7 +17,9 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
+import com.strandls.geoentities.ApiException;
+import com.strandls.geoentities.controllers.GeoentitiesServicesApi;
+import com.strandls.geoentities.pojo.GeoentitiesWKTData;
 import com.strandls.landscape.dao.LandscapeDao;
 import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.pojo.FieldTemplate;
@@ -45,6 +48,11 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	private TemplateHeaderService templateHeaderService;
 
 	@Inject
+	private GeoentitiesServicesApi geoentitiesServicesApi;
+	
+	private static final Long PARENT_ID = 0L;
+
+	@Inject
 	public LandscapeServiceImpl(LandscapeDao dao) {
 		super(dao);
 	}
@@ -54,7 +62,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		List<FieldTemplate> fieldTemplate = fieldTemplateService.findAll();
 
 		// sent -1 as template Id as initial parentId
-		TemplateTreeStructure treeStructure = getTreeStructure(fieldTemplate, -1L, languageId, protectedAreaId);
+		TemplateTreeStructure treeStructure = getTreeStructure(fieldTemplate, PARENT_ID, languageId, protectedAreaId);
 		return treeStructure;
 	}
 
@@ -81,11 +89,12 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 					.addChild(getTreeStructure(fieldTemplates, fieldTemplate.getId(), languageId, protectedAreaId));
 		}
 
-		if (templateId == -1L) {
+		if (templateId == PARENT_ID) {
 			treeStructure.setHeader("root");
 			treeStructure.setContent("root");
 			return treeStructure;
 		}
+		System.out.println(protectedAreaId + " " + templateId);
 		PageField pageField = pageFieldService.getPageField(protectedAreaId, templateId);
 		treeStructure.setPageFieldId(pageField.getId());
 		if (pageField != null) {
@@ -115,20 +124,48 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 
 		// PageField pageField = pageFieldService.save(jsonObject.toString());
 		PageField pageField = pageFieldService.getPageField(protectedAreaId, templateId);
-		fieldContentService.save(new FieldContent(null, pageField.getId(), languageId, content, false));
+		fieldContentService.saveOrUpdate(pageField.getId(), languageId, content);
+		//fieldContentService.save(new FieldContent(null, pageField.getId(), languageId, content, false));
 
 		TemplateTreeStructure rootNode = new TemplateTreeStructure(pageField.getTemplateId());
 		TemplateHeader header = templateHeaderService.getHeader(pageField.getTemplateId(), languageId);
 		rootNode.setHeader(header.getHeader());
 		rootNode.setContent(content);
+		rootNode.setPageFieldId(pageField.getId());
 		return rootNode;
 	}
 
 	@Override
-	public Landscape save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
+	public Landscape save(String jsonString)
+			throws JsonParseException, JsonMappingException, IOException, JSONException, ApiException {
+
+		JSONObject jsonObject = new JSONObject(jsonString);
+
+		Long geoEntityId = null;
+		
+		String wkt = null;
+		if (jsonObject.has("wkt")) {
+			wkt = (String) jsonObject.remove("wkt");
+		}
+
+		jsonString = jsonObject.toString();
 		Landscape landscape = objectMapper.readValue(jsonString, Landscape.class);
+		String placeName = landscape.getShortName();
+
+		if (wkt != null) {
+			GeoentitiesWKTData geoentitiesWKTData = new GeoentitiesWKTData();
+			geoentitiesWKTData.setPlaceName(placeName);
+			geoentitiesWKTData.setWktData(wkt);
+			System.out.println(placeName);
+			System.out.println(wkt);
+			GeoentitiesWKTData geoentities = geoentitiesServicesApi.createGeoentities(geoentitiesWKTData);
+			geoEntityId = geoentities.getId();
+		}
+		
+		landscape.setGeoEntityId(geoEntityId);
 		landscape = save(landscape);
 
+		// Adding Field templates for each page
 		List<FieldTemplate> fieldTemplates = fieldTemplateService.findAll();
 		Long authorId = null;
 		Timestamp timestamp = new Timestamp(new Date().getTime());
@@ -137,5 +174,28 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 					timestamp, false));
 		}
 		return landscape;
+	}
+
+	@Override
+	public List<List<Object>> getBoundingBox(Long protectedAreaId) throws ApiException {
+		Landscape landscape = findById(protectedAreaId);
+		Long geoEntityId = landscape.getGeoEntityId();
+		return geoentitiesServicesApi.getBoundingBox(geoEntityId);
+	}
+
+	@Override
+	public Landscape updateWKT(Long protectedAreaId, String wkt) throws ApiException {
+		Landscape landscape = findById(protectedAreaId);
+		Long geoEntityId = landscape.getGeoEntityId();
+		geoentitiesServicesApi.updateGeoentitiesById(geoEntityId+"", wkt);
+		return landscape;
+	}
+
+	@Override
+	public String getWKT(Long protectedAreaId) throws ApiException {
+		Landscape landscape = findById(protectedAreaId);
+		Long geoEntityId = landscape.getGeoEntityId();
+		GeoentitiesWKTData geoEntity = geoentitiesServicesApi.findGeoentitiesById(geoEntityId+"");
+		return geoEntity.getWktData();
 	}
 }

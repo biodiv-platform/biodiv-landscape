@@ -6,6 +6,7 @@ package com.strandls.landscape.controller;
 import java.io.IOException;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.google.inject.Inject;
 import com.strandls.landscape.ApiConstants;
 import com.strandls.landscape.pojo.FieldTemplate;
 import com.strandls.landscape.service.FieldTemplateService;

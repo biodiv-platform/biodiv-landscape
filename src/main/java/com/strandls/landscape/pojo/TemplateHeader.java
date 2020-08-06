@@ -30,8 +30,8 @@ public class TemplateHeader implements Serializable{
 	private static final long serialVersionUID = -5448950898380114701L;
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "field_content_id_generator")
-    @SequenceGenerator(name = "field_content_id_generator", sequenceName = "field_content_id_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "template_header_id_generator")
+    @SequenceGenerator(name = "template_header_id_generator", sequenceName = "template_header_id_seq", allocationSize = 1)
     @Column(name = "id", updatable = false, nullable = false)
 	private Long id;
 	

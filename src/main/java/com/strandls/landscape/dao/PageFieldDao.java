@@ -1,11 +1,11 @@
 package com.strandls.landscape.dao;
 
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.google.inject.Inject;
 import com.strandls.landscape.pojo.PageField;
 
 public class PageFieldDao extends AbstractDao<PageField, Long>{

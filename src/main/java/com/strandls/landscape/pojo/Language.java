@@ -29,14 +29,14 @@ public class Language implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "language_id_generator")
-	@SequenceGenerator(name = "language_id_generator", sequenceName = "language_id_seq", allocationSize = 50)
+	@SequenceGenerator(name = "language_id_generator", sequenceName = "language_id_seq", allocationSize = 1)
 	@Column(name = "id", updatable = false, nullable = false)
 	private Long id;
 
 	@Column(name = "name")
 	private String name;
 	
-	@Column(name = "three_letter_code")
+	@Column(name = "three_letter_code", unique=true)
 	private String threeLetterCode;
 	
 	@Column(name = "two_letter_code")

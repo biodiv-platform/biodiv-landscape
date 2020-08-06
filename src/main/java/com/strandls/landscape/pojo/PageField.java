@@ -33,8 +33,8 @@ public class PageField implements Serializable{
 	 */
 	private static final long serialVersionUID = 6322115578128247464L;
 	@Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "field_id_generator")
-    @SequenceGenerator(name = "field_id_generator", sequenceName = "field_id_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "page_field_id_generator")
+    @SequenceGenerator(name = "page_field_id_generator", sequenceName = "page_field_id_seq", allocationSize = 1)
     @Column(name = "id", updatable = false, nullable = false)
 	private Long id;
 	

@@ -2,10 +2,11 @@ package com.strandls.landscape.service.impl;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
 import com.strandls.landscape.dao.TemplateHeaderDao;
 import com.strandls.landscape.pojo.TemplateHeader;
 import com.strandls.landscape.service.AbstractService;

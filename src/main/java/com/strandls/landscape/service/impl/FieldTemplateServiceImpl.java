@@ -5,10 +5,11 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
 import com.strandls.landscape.dao.FieldTemplateDao;
 import com.strandls.landscape.pojo.FieldTemplate;
 import com.strandls.landscape.pojo.Landscape;

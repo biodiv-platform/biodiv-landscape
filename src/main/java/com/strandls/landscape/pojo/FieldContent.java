@@ -17,6 +17,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModel;
 
+/**
+ * Contains the actual text of the fields
+ * 
+ * @author vilay
+ *
+ */
 @Entity
 @Table(name = "field_content")
 @XmlRootElement
@@ -31,7 +37,7 @@ public class FieldContent implements Serializable{
 
 	@Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "field_content_id_generator")
-    @SequenceGenerator(name = "field_content_id_generator", sequenceName = "field_content_id_seq", allocationSize = 50)
+    @SequenceGenerator(name = "field_content_id_generator", sequenceName = "field_content_id_seq", allocationSize = 1)
     @Column(name = "id", updatable = false, nullable = false)
 	private Long id;
 	

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContextEvent;
 
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
@@ -30,12 +31,13 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.google.inject.servlet.ServletModule;
+import com.strandls.geoentities.controllers.GeoentitiesServicesApi;
 import com.strandls.landscape.controller.ControllerModule;
 import com.strandls.landscape.dao.DaoModule;
 import com.strandls.landscape.service.ServiceModule;
-import com.sun.jersey.guice.JerseyServletModule;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 /**
  * 
@@ -49,7 +51,7 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 	@Override
 	protected Injector getInjector() {
 
-		Injector injector = Guice.createInjector(new JerseyServletModule() {
+		Injector injector = Guice.createInjector(new ServletModule() {
 			@Override
 			protected void configureServlets() {
 
@@ -75,7 +77,10 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 				props.put("jersey.config.server.wadl.disableWadl", "true");
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
-				serve("/api/*").with(GuiceContainer.class, props);
+				bind(GeoentitiesServicesApi.class).in(Scopes.SINGLETON);
+				bind(ServletContainer.class).in(Scopes.SINGLETON);
+				
+				serve("/api/*").with(ServletContainer.class, props);
 
 			}
 		}, new ControllerModule(), new ServiceModule(), new DaoModule());

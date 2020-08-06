@@ -16,6 +16,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModel;
 
+/**
+ * This class represent the position of the each field
+ * Basic structure of the landscape module
+ * parent id is 0 for the root element
+ * @author vilay
+ *
+ */
+
 @Entity
 @Table(name = "field_template")
 @XmlRootElement
@@ -30,7 +38,7 @@ public class FieldTemplate implements Serializable{
 
 	@Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "field_template_id_generator")
-    @SequenceGenerator(name = "field_template_id_generator", sequenceName = "field_template_id_seq", allocationSize = 50)
+    @SequenceGenerator(name = "field_template_id_generator", sequenceName = "field_template_id_seq", allocationSize = 1)
     @Column(name = "id", updatable = false, nullable = false)
 	private Long id;
 	

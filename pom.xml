@@ -57,7 +57,7 @@
 
 
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -76,60 +76,104 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.13</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+
+
+		<!-- https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>4.0.1</version>
-			<scope>provided</scope>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>2.1.1</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-server -->
 		<dependency>
-			<groupId>com.sun.jersey</groupId>
+			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-server</artifactId>
-			<version>1.19.4</version>
+			<version>2.31</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.sun.jersey.contribs/jersey-guice -->
+		<!-- https://mvnrepository.com/artifact/org.glassfish.jersey.containers/jersey-container-servlet-core -->
 		<dependency>
-			<groupId>com.sun.jersey.contribs</groupId>
-			<artifactId>jersey-guice</artifactId>
-			<version>1.19.4</version>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-servlet-core</artifactId>
+			<version>2.31</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.9.9</version>
+			<groupId>org.glassfish.jersey.inject</groupId>
+			<artifactId>jersey-hk2</artifactId>
+			<version>2.31</version>
 		</dependency>
 
-
+		<!-- https://mvnrepository.com/artifact/org.glassfish.hk2/guice-bridge -->
 		<dependency>
-			<groupId>com.fasterxml.jackson.jaxrs</groupId>
-			<artifactId>jackson-jaxrs-json-provider</artifactId>
-			<version>2.9.9</version>
-		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/org.json/json -->
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20090211</version>
+			<groupId>org.glassfish.hk2</groupId>
+			<artifactId>guice-bridge</artifactId>
+			<version>2.6.1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.google.inject/guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
-			<version>4.2.2</version>
+			<version>4.2.3</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.google.inject.extensions/guice-servlet -->
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-servlet</artifactId>
-			<version>4.2.2</version>
+			<version>4.2.3</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/javax/javaee-web-api -->
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-web-api</artifactId>
+			<version>8.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson -->
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-json-jackson</artifactId>
+			<version>2.31</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-multipart -->
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-multipart</artifactId>
+			<version>2.31</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/io.swagger/swagger-jersey2-jaxrs -->
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-jersey2-jaxrs</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.swagger/swagger-annotations -->
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>1.6.1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
@@ -146,32 +190,43 @@
 			<version>42.2.9</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/io.swagger/swagger-annotations -->
+		<!-- https://mvnrepository.com/artifact/org.postgis/postgis-jdbc -->
 		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>1.5.22</version>
+			<groupId>org.postgis</groupId>
+			<artifactId>postgis-jdbc</artifactId>
+			<version>1.3.3</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.postgis</groupId>
+					<artifactId>postgis-stubs</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/io.swagger/swagger-jaxrs -->
 		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-jaxrs</artifactId>
-			<version>1.5.22</version>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-spatial</artifactId>
+			<version>5.2.12.Final</version>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/io.swagger/swagger-jersey2-jaxrs -->
+		
 		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-jersey-jaxrs</artifactId>
-			<version>1.5.22</version>
+			<groupId>com.bedatadriven</groupId>
+			<artifactId>jackson-datatype-jts</artifactId>
+			<version>2.4</version>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/io.swagger/swagger-models -->
+		
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-models</artifactId>
-			<version>1.5.22</version>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090211</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.strandls.biodiv</groupId>
+		    <artifactId>geoentities-client</artifactId>
+		    <version>1.0.0</version>
 		</dependency>
 
 	</dependencies>
