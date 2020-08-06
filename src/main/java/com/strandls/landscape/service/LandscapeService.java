@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.strandls.geoentities.ApiException;
 import com.strandls.landscape.pojo.Landscape;
+import com.strandls.landscape.pojo.response.LandscapeShow;
 import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 
 public interface LandscapeService {
@@ -32,4 +33,5 @@ public interface LandscapeService {
 	public List<List<Object>> getBoundingBox(Long protectedAreaId) throws ApiException;
 	public Landscape updateWKT(Long protectedAreaId, String wkt) throws ApiException;
 	public String getWKT(Long protectedAreaId) throws ApiException;
+	public LandscapeShow getShowPage(Long id, Long languageId) throws ApiException;
 }

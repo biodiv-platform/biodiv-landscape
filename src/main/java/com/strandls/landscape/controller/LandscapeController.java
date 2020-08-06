@@ -30,6 +30,7 @@ import com.strandls.landscape.ApiConstants;
 import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.pojo.Landscape;
 import com.strandls.landscape.pojo.TemplateHeader;
+import com.strandls.landscape.pojo.response.LandscapeShow;
 import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 import com.strandls.landscape.service.FieldContentService;
 import com.strandls.landscape.service.LandscapeService;
@@ -80,9 +81,10 @@ public class LandscapeController {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the show page data for landscape model", response = TemplateTreeStructure.class)
-	public Response getLandScape(@PathParam("protectedAreaId") Long id, @QueryParam("languageId") Long languageId) {
-		TemplateTreeStructure treeStructure = landscapeService.getPageStructure(id, languageId);
-		return Response.ok().entity(treeStructure).build();
+	public Response getLandScape(@PathParam("protectedAreaId") Long id, @QueryParam("languageId") Long languageId) throws ApiException {
+		LandscapeShow landscapeShow = landscapeService.getShowPage(id, languageId);
+		//TemplateTreeStructure treeStructure = landscapeService.getPageStructure(id, languageId);
+		return Response.ok().entity(landscapeShow).build();
 	}
 
 	@GET

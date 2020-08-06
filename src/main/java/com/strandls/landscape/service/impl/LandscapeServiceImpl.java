@@ -26,6 +26,7 @@ import com.strandls.landscape.pojo.FieldTemplate;
 import com.strandls.landscape.pojo.Landscape;
 import com.strandls.landscape.pojo.PageField;
 import com.strandls.landscape.pojo.TemplateHeader;
+import com.strandls.landscape.pojo.response.LandscapeShow;
 import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 import com.strandls.landscape.service.AbstractService;
 import com.strandls.landscape.service.FieldContentService;
@@ -55,6 +56,15 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	@Inject
 	public LandscapeServiceImpl(LandscapeDao dao) {
 		super(dao);
+	}
+	
+	@Override
+	public LandscapeShow getShowPage(Long protectedAreaId, Long languageId) throws ApiException {
+		String wktData = getWKT(protectedAreaId);
+		List<List<Object>> boundingBox = getBoundingBox(protectedAreaId);
+		TemplateTreeStructure treeStructure = getPageStructure(protectedAreaId, languageId);
+		LandscapeShow landscapeShow = new LandscapeShow(wktData, boundingBox, treeStructure);
+		return landscapeShow;
 	}
 
 	public TemplateTreeStructure getPageStructure(Long protectedAreaId, Long languageId) {
