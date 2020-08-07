@@ -10,7 +10,7 @@ import com.strandls.landscape.pojo.FieldTemplate;
 public interface FieldTemplateService {
 
 	public FieldTemplate findById(Long id);
-	public FieldTemplate findByPropertyWithCondtion(String property, String value, String condition);
+	public FieldTemplate findByPropertyWithCondtion(String property, Object value, String condition);
 	
 	public FieldTemplate save(String jsonString) throws JsonParseException, JsonMappingException, IOException;
 	public FieldTemplate save(FieldTemplate entity);

@@ -19,9 +19,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.landscape.ApiConstants;
 import com.strandls.landscape.pojo.FieldTemplate;
 import com.strandls.landscape.service.FieldTemplateService;
+import com.strandls.landscape.util.UserUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -69,9 +71,12 @@ public class FieldTemplateController {
 	@ApiOperation(value = "Save the page", response = FieldTemplate.class)
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
+	@ValidateUser
 	public Response save(@Context HttpServletRequest request, String jsonString) {
 		FieldTemplate fieldTemplate;
 		try {
+			if(!UserUtil.isAdmin(request))
+				return Response.status(Status.UNAUTHORIZED).build();
 			fieldTemplate = fieldTemplateService.save(jsonString);
 			return Response.status(Status.CREATED).entity(fieldTemplate).build();
 		} catch (IOException e) {

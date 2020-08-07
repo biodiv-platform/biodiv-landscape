@@ -17,7 +17,7 @@ import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 public interface LandscapeService {
 
 	public Landscape findById(Long id);
-	public Landscape findByPropertyWithCondtion(String property, String value, String condition);
+	public Landscape findByPropertyWithCondtion(String property, Object value, String condition);
 	
 	public Landscape save(String jsonString) throws JsonParseException, JsonMappingException, IOException, JSONException, ApiException;
 	public Landscape save(Landscape entity);
@@ -34,4 +34,5 @@ public interface LandscapeService {
 	public Landscape updateWKT(Long protectedAreaId, String wkt) throws ApiException;
 	public String getWKT(Long protectedAreaId) throws ApiException;
 	public LandscapeShow getShowPage(Long id, Long languageId) throws ApiException;
+	public LandscapeShow showPageBySiteNumber(Long id, Long languageId) throws ApiException;
 }

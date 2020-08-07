@@ -13,7 +13,7 @@ public interface FieldContentService {
 
 	public FieldContent findById(Long id);
 
-	public FieldContent findByPropertyWithCondtion(String property, String value, String condition);
+	public FieldContent findByPropertyWithCondtion(String property, Object value, String condition);
 
 	public FieldContent save(FieldContent entity);
 

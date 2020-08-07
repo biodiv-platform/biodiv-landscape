@@ -10,7 +10,7 @@ import com.strandls.landscape.pojo.Language;
 public interface LanguageService {
 
 	public Language findById(Long id);
-	public Language findByPropertyWithCondtion(String property, String value, String condition);
+	public Language findByPropertyWithCondtion(String property, Object value, String condition);
 	
 	public Language save(String jsonString) throws JsonParseException, JsonMappingException, IOException;
 	public Language save(Language entity);

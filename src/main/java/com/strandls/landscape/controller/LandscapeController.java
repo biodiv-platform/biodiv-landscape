@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.json.JSONException;
 
+import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.geoentities.ApiException;
 import com.strandls.landscape.ApiConstants;
 import com.strandls.landscape.pojo.FieldContent;
@@ -35,6 +36,7 @@ import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 import com.strandls.landscape.service.FieldContentService;
 import com.strandls.landscape.service.LandscapeService;
 import com.strandls.landscape.service.TemplateHeaderService;
+import com.strandls.landscape.util.UserUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -77,7 +79,17 @@ public class LandscapeController {
 	}
 	
 	@GET
-	@Path("show/{protectedAreaId}")
+	@Path(ApiConstants.SHOW + ApiConstants.SITE_NUMBER + "/{id}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the landscape model by site number", response = TemplateTreeStructure.class)
+	public Response getLandScapeBySiteNumber(@PathParam("id") Long id, @QueryParam("languageId") Long languageId) throws ApiException {
+		LandscapeShow landscapeShow = landscapeService.showPageBySiteNumber(id, languageId);
+		return Response.ok().entity(landscapeShow).build();
+	}
+	
+	@GET
+	@Path(ApiConstants.SHOW + "/{protectedAreaId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the show page data for landscape model", response = TemplateTreeStructure.class)
@@ -109,8 +121,11 @@ public class LandscapeController {
 	@ApiOperation(value = "Save the landscape page", response = Landscape.class)
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
+	@ValidateUser
 	public Response save(@Context HttpServletRequest request, String jsonString) throws JSONException, ApiException {
 		try {
+			if(!UserUtil.isAdmin(request))
+				return Response.status(Status.UNAUTHORIZED).build();
 			Landscape landscape = landscapeService.save(jsonString);
 			return Response.status(Status.CREATED).entity(landscape).build();
 		} catch (IOException e) {
@@ -133,8 +148,11 @@ public class LandscapeController {
 	@Path("template/header")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Add template header", response = TemplateHeader.class)
+	@ValidateUser
 	public Response addTemplateHeader(@Context HttpServletRequest request, String jsonString) {
 		try {
+			if(!UserUtil.isAdmin(request))
+				return Response.status(Status.UNAUTHORIZED).build();
 			TemplateHeader templateHeader = templateHeaderService.save(jsonString);
 			return Response.ok().entity(templateHeader).build();
 		} catch (IOException e) {
@@ -147,9 +165,12 @@ public class LandscapeController {
 	@Path("field/content")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "update field content to Landscape", response = TemplateTreeStructure.class)
+	@ValidateUser
 	public Response saveField(@Context HttpServletRequest request, String jsonString) {
 
 		try {
+			if(!UserUtil.isAdmin(request))
+				return Response.status(Status.UNAUTHORIZED).build();
 			TemplateTreeStructure node = landscapeService.saveField(request, jsonString);
 			return Response.ok().entity(node).build();
 		} catch (JSONException | IOException e) {
@@ -162,9 +183,12 @@ public class LandscapeController {
 	@Path("field/content")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "update field content to Landscape", response = TemplateTreeStructure.class)
+	@ValidateUser
 	public Response updateField(@Context HttpServletRequest request, String jsonString) {
 
 		try {
+			if(!UserUtil.isAdmin(request))
+				return Response.status(Status.UNAUTHORIZED).build();
 			FieldContent fieldContent = fieldContentService.update(jsonString);
 			return Response.ok().entity(fieldContent).build();
 		} catch (JSONException | IOException e) {
@@ -176,7 +200,7 @@ public class LandscapeController {
 	@GET
 	@Path("wkt")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON) 
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response getWKT(@QueryParam("protectedAreaId") Long protectedAreaId) throws ApiException{
 		if(protectedAreaId == null) {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
@@ -188,9 +212,12 @@ public class LandscapeController {
 	@PUT
 	@Path("wkt")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON) 
-	public Response updateWKT(@QueryParam("protectedAreaId") Long protectedAreaId,
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	public Response updateWKT(@Context HttpServletRequest request,@QueryParam("protectedAreaId") Long protectedAreaId,
 			@QueryParam("wkt") String wkt) throws ApiException{
+		if(!UserUtil.isAdmin(request))
+			return Response.status(Status.UNAUTHORIZED).build();
 		if(protectedAreaId == null || wkt == null) {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}

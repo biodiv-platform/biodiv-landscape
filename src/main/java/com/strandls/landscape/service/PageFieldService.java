@@ -10,7 +10,7 @@ import com.strandls.landscape.pojo.PageField;
 public interface PageFieldService {
 
 	public PageField findById(Long id);
-	public PageField findByPropertyWithCondtion(String property, String value, String condition);
+	public PageField findByPropertyWithCondtion(String property, Object value, String condition);
 	
 	public PageField save(String jsonString) throws JsonParseException, JsonMappingException, IOException;
 	public PageField save(PageField entity);

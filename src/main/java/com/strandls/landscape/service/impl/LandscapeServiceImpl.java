@@ -59,6 +59,12 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	}
 	
 	@Override
+	public LandscapeShow showPageBySiteNumber(Long siteNumber, Long languageId) throws ApiException {
+		Landscape  landscape = findByPropertyWithCondtion("siteNumber", siteNumber, "=");
+		return getShowPage(landscape.getId(), languageId);
+	}
+	
+	@Override
 	public LandscapeShow getShowPage(Long protectedAreaId, Long languageId) throws ApiException {
 		String wktData = getWKT(protectedAreaId);
 		List<List<Object>> boundingBox = getBoundingBox(protectedAreaId);

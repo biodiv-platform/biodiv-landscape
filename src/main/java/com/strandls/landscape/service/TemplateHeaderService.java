@@ -10,7 +10,7 @@ import com.strandls.landscape.pojo.TemplateHeader;
 public interface TemplateHeaderService {
 
 	public TemplateHeader findById(Long id);
-	public TemplateHeader findByPropertyWithCondtion(String property, String value, String condition);
+	public TemplateHeader findByPropertyWithCondtion(String property, Object value, String condition);
 	
 	public TemplateHeader save(String jsonString) throws JsonParseException, JsonMappingException, IOException;
 	public TemplateHeader save(TemplateHeader entity);
