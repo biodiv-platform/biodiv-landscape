@@ -1,6 +1,10 @@
 package com.strandls.landscape.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -26,5 +30,33 @@ public class LandscapeDao extends AbstractDao<Landscape, Long>{
 			session.close();
 		}
 		return entity;
+	}
+	
+	/**
+	 * Overridden just to sort it by site number rather than id.
+	 */
+	@Override
+	public List<Landscape> findAll() {
+		return findAll(-1, -1);
+	}
+	@Override
+	public List<Landscape> findAll(int limit, int offset) {
+		String queryStr = "" +
+			    "from "+daoType.getSimpleName()+" t " +
+			    " order by siteNumber";
+		Session session = sessionFactory.openSession();
+		org.hibernate.query.Query query = session.createQuery(queryStr);
+
+		List<Landscape> resultList = new ArrayList<Landscape>();
+		try {
+			if(limit>0 && offset >= 0)
+				query = query.setFirstResult(offset).setMaxResults(limit);
+			resultList = query.getResultList();
+			
+		} catch (NoResultException e) {
+			throw e;
+		}
+		session.close();
+		return resultList;
 	}
 }

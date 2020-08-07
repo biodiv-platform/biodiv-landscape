@@ -72,7 +72,7 @@ public class LandscapeController {
 	@Path("{id}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get the landscape model", response = TemplateTreeStructure.class)
+	@ApiOperation(value = "Get the landscape model", response = Landscape.class)
 	public Response getLandScape(@PathParam("id") Long id) {
 		Landscape landscape = landscapeService.findById(id);
 		return Response.ok().entity(landscape).build();
@@ -82,7 +82,7 @@ public class LandscapeController {
 	@Path(ApiConstants.SHOW + ApiConstants.SITE_NUMBER + "/{id}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get the landscape model by site number", response = TemplateTreeStructure.class)
+	@ApiOperation(value = "Get the landscape model by site number", response = LandscapeShow.class)
 	public Response getLandScapeBySiteNumber(@PathParam("id") Long id, @QueryParam("languageId") Long languageId) throws ApiException {
 		LandscapeShow landscapeShow = landscapeService.showPageBySiteNumber(id, languageId);
 		return Response.ok().entity(landscapeShow).build();
@@ -92,10 +92,9 @@ public class LandscapeController {
 	@Path(ApiConstants.SHOW + "/{protectedAreaId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get the show page data for landscape model", response = TemplateTreeStructure.class)
+	@ApiOperation(value = "Get the show page data for landscape model", response = LandscapeShow.class)
 	public Response getLandScape(@PathParam("protectedAreaId") Long id, @QueryParam("languageId") Long languageId) throws ApiException {
 		LandscapeShow landscapeShow = landscapeService.getShowPage(id, languageId);
-		//TemplateTreeStructure treeStructure = landscapeService.getPageStructure(id, languageId);
 		return Response.ok().entity(landscapeShow).build();
 	}
 
@@ -103,7 +102,7 @@ public class LandscapeController {
 	@Path("all")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get list page for the landscape model")
+	@ApiOperation(value = "Get list page for the landscape model", response = Landscape.class, responseContainer = "List")
 	public Response getAllLandScapes(@QueryParam("languageId") Long languageId,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset) {
