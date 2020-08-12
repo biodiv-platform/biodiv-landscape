@@ -199,8 +199,8 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		Long geoEntityId = landscape.getGeoEntityId();
 		if(geoEntityId != null) {
 			Map<String, Object> thumbnailPath = geoentitiesServicesApi.getImagePathFromGeoEntities(geoEntityId+"");
-			String url = thumbnailPath.get("url").toString();
-			landscape.setThumbnailPath(url);
+			String uri = thumbnailPath.get("uri").toString();
+			landscape.setThumbnailPath(uri);
 		}
 		update(landscape);
 		return landscape;
