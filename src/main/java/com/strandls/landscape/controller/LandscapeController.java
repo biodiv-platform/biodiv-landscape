@@ -113,6 +113,32 @@ public class LandscapeController {
 			landscapes = landscapeService.findAll(limit, offset);
 		return Response.ok().entity(landscapes).build();
 	}
+	
+	@PUT
+	@Path("thumbnail/all")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get list page for the landscape model", response = Landscape.class)
+	@ValidateUser
+	public Response updateThumbnailForAllLandscape(@Context HttpServletRequest request) throws ApiException {
+		if(!UserUtil.isAdmin(request))
+			return Response.status(Status.UNAUTHORIZED).build();
+		List<Landscape> landscapes = landscapeService.updateThumbnailForAllLandscape();
+		return Response.ok().entity(landscapes).build();
+	}
+	
+	@PUT
+	@Path("thumbnail")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get list page for the landscape model", response = Landscape.class)
+	@ValidateUser
+	public Response updateThumbnail(@Context HttpServletRequest request, @QueryParam("protectedAreaId") Long protectedAreaId) throws ApiException {
+		if(!UserUtil.isAdmin(request))
+			return Response.status(Status.UNAUTHORIZED).build();
+		Landscape landscape = landscapeService.updateThumbnail(protectedAreaId);
+		return Response.ok().entity(landscape).build();
+	}
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)

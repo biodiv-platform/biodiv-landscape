@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
@@ -190,6 +191,28 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 					timestamp, false));
 		}
 		return landscape;
+	}
+	
+	@Override
+	public Landscape updateThumbnail(Long protectedAreaId) throws ApiException {
+		Landscape landscape = findById(protectedAreaId);
+		Long geoEntityId = landscape.getGeoEntityId();
+		if(geoEntityId != null) {
+			Map<String, Object> thumbnailPath = geoentitiesServicesApi.getImagePathFromGeoEntities(geoEntityId+"");
+			String url = thumbnailPath.get("url").toString();
+			landscape.setThumbnailPath(url);
+		}
+		update(landscape);
+		return landscape;
+	}
+	
+	@Override
+	public List<Landscape> updateThumbnailForAllLandscape() throws ApiException {
+		List<Landscape> landscapes = findAll();
+		for(Landscape landscape : landscapes) {
+			updateThumbnail(landscape.getId());
+		}
+		return findAll();
 	}
 
 	@Override

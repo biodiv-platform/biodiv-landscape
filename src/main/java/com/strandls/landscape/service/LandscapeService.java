@@ -35,4 +35,6 @@ public interface LandscapeService {
 	public String getWKT(Long protectedAreaId) throws ApiException;
 	public LandscapeShow getShowPage(Long id, Long languageId) throws ApiException;
 	public LandscapeShow showPageBySiteNumber(Long id, Long languageId) throws ApiException;
+	public Landscape updateThumbnail(Long protectedAreaId) throws ApiException;
+	public List<Landscape> updateThumbnailForAllLandscape() throws ApiException;
 }

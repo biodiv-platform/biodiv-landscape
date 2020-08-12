@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.nimbusds.jose.jwk.ThumbprintUtils;
 
 import io.swagger.annotations.ApiModel;
 
@@ -47,18 +48,23 @@ public class Landscape implements Serializable {
 	@Column(name = "geo_entity_id")
 	private Long geoEntityId;
 	
+	@Column(name = "thumbnail_path")
+	private String thumbnailPath;
+	
 	@Column(name = "is_deleted")
 	private Boolean isDeleted;
 	
 	public Landscape() {
 	}
 
-	public Landscape(Long id, String shortName, Long siteNumber, Long geoEntityId, Boolean isDeleted) {
+	public Landscape(Long id, String shortName, Long siteNumber, Long geoEntityId, String thumbnailPath,
+			Boolean isDeleted) {
 		super();
 		this.id = id;
 		this.shortName = shortName;
 		this.siteNumber = siteNumber;
 		this.geoEntityId = geoEntityId;
+		this.thumbnailPath = thumbnailPath;
 		this.isDeleted = isDeleted;
 	}
 
@@ -92,6 +98,14 @@ public class Landscape implements Serializable {
 
 	public void setGeoEntityId(Long geoEntityId) {
 		this.geoEntityId = geoEntityId;
+	}
+
+	public String getThumbnailPath() {
+		return thumbnailPath;
+	}
+
+	public void setThumbnailPath(String thumbnailPath) {
+		this.thumbnailPath = thumbnailPath;
 	}
 
 	public Boolean getIsDeleted() {
