@@ -13,5 +13,6 @@ public class DaoModule extends AbstractModule {
 		bind(FieldTemplateDao.class).in(Scopes.SINGLETON);
 		bind(PageFieldDao.class).in(Scopes.SINGLETON);
 		bind(TemplateHeaderDao.class).in(Scopes.SINGLETON);
+		bind(DownloadLogDao.class).in(Scopes.SINGLETON);
 	}
 }

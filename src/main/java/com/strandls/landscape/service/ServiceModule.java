@@ -2,6 +2,7 @@ package com.strandls.landscape.service;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import com.strandls.landscape.service.impl.DownloadLogServiceImpl;
 import com.strandls.landscape.service.impl.FieldContentServiceImpl;
 import com.strandls.landscape.service.impl.FieldTemplateServiceImpl;
 import com.strandls.landscape.service.impl.LandscapeServiceImpl;
@@ -19,5 +20,6 @@ public class ServiceModule extends AbstractModule {
 		bind(FieldTemplateService.class).to(FieldTemplateServiceImpl.class).in(Scopes.SINGLETON);
 		bind(PageFieldService.class).to(PageFieldServiceImpl.class).in(Scopes.SINGLETON);
 		bind(TemplateHeaderService.class).to(TemplateHeaderServiceImpl.class).in(Scopes.SINGLETON);
+		bind(DownloadLogService.class).to(DownloadLogServiceImpl.class).in(Scopes.SINGLETON);
 	}
 }

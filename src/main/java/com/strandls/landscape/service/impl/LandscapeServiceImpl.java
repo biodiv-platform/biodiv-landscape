@@ -1,12 +1,17 @@
 package com.strandls.landscape.service.impl;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
@@ -14,14 +19,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.pac4j.core.profile.CommonProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.geoentities.ApiException;
 import com.strandls.geoentities.controllers.GeoentitiesServicesApi;
 import com.strandls.geoentities.pojo.GeoentitiesWKTData;
 import com.strandls.landscape.dao.LandscapeDao;
+import com.strandls.landscape.pojo.DownloadLog;
 import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.pojo.FieldTemplate;
 import com.strandls.landscape.pojo.Landscape;
@@ -30,6 +40,7 @@ import com.strandls.landscape.pojo.TemplateHeader;
 import com.strandls.landscape.pojo.response.LandscapeShow;
 import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 import com.strandls.landscape.service.AbstractService;
+import com.strandls.landscape.service.DownloadLogService;
 import com.strandls.landscape.service.FieldContentService;
 import com.strandls.landscape.service.FieldTemplateService;
 import com.strandls.landscape.service.LandscapeService;
@@ -38,6 +49,8 @@ import com.strandls.landscape.service.TemplateHeaderService;
 
 public class LandscapeServiceImpl extends AbstractService<Landscape> implements LandscapeService {
 
+	private static final Logger logger = LoggerFactory.getLogger(LandscapeServiceImpl.class);
+	
 	@Inject
 	private ObjectMapper objectMapper;
 	@Inject
@@ -52,7 +65,27 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	@Inject
 	private GeoentitiesServicesApi geoentitiesServicesApi;
 	
+	@Inject
+	private DownloadLogService downloadLogService;
+	
 	private static final Long PARENT_ID = 0L;
+	
+	private static Properties properties;
+	private static String ROOT_PATH;
+	
+	static {
+		InputStream in = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("config.properties");
+
+		properties = new Properties();
+		try {
+			properties.load(in);
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+		
+		ROOT_PATH = (String) properties.get("download.path");
+	}
 
 	@Inject
 	public LandscapeServiceImpl(LandscapeDao dao) {
@@ -236,5 +269,51 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		Long geoEntityId = landscape.getGeoEntityId();
 		GeoentitiesWKTData geoEntity = geoentitiesServicesApi.findGeoentitiesById(geoEntityId+"");
 		return geoEntity.getWktData();
+	}
+	
+	@Override
+	public File downloadWKT(HttpServletRequest request, Long protectedAreaId, String type) throws ApiException, IOException {
+		String wkt = getWKT(protectedAreaId);
+		File file = createNewFile(wkt, protectedAreaId, type);
+		logWKTDownload(request, file, protectedAreaId, type);
+		return file;
+	}
+	
+	private void logWKTDownload(HttpServletRequest request, File file, Long protectedAreaId, String type) {
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		String paramsAsText = "{protectedAreaId : " + protectedAreaId + "}";
+		Long autherId = Long.parseLong(profile.getId());
+		Timestamp createdOn = new Timestamp(new Date().getTime());
+		
+		DownloadLog downloadLog = new DownloadLog();
+		downloadLog.setVersion(2L);
+		downloadLog.setAuthorId(autherId);
+		downloadLog.setCreatedOn(createdOn);
+		downloadLog.setFilePath(file.getAbsolutePath());
+		downloadLog.setFilterUrl(request.getRequestURL().toString());
+		downloadLog.setNotes("");
+		downloadLog.setParamsMapAsText(paramsAsText);
+		downloadLog.setStatus("Success");
+		downloadLog.setType(type);
+		downloadLog.setSourceType("Landscape");
+		downloadLog.setOffsetParam(0L);
+		
+		downloadLogService.save(downloadLog);
+	}
+
+	private File createNewFile(String wktData, Long protecteAreaId, String type) throws IOException {
+		String randomUUID = UUID.randomUUID().toString();
+		String pathname = ROOT_PATH + File.separator +  randomUUID;
+		File dir = new File(pathname);
+		if(!dir.exists())
+			dir.mkdir();
+		pathname = pathname + File.separator + protecteAreaId + "_"  + type + ".txt";
+		File file = new File(pathname);
+		if(file.exists())
+			return file;
+		FileWriter fileWriter = new FileWriter(file);
+		fileWriter.write(wktData);
+		fileWriter.close();
+		return file;
 	}
 }

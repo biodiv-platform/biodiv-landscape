@@ -1,5 +1,6 @@
 package com.strandls.landscape.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -31,8 +32,11 @@ public interface LandscapeService {
 	public TemplateTreeStructure getPageStructure(Long id, Long languageId);
 	public TemplateTreeStructure saveField(HttpServletRequest request, String jsonString) throws JSONException, JsonParseException, JsonMappingException, IOException;
 	public List<List<Object>> getBoundingBox(Long protectedAreaId) throws ApiException;
-	public Landscape updateWKT(Long protectedAreaId, String wkt) throws ApiException;
+	
 	public String getWKT(Long protectedAreaId) throws ApiException;
+	public Landscape updateWKT(Long protectedAreaId, String wkt) throws ApiException;
+	public File downloadWKT(HttpServletRequest request, Long protectedAreaId, String type) throws ApiException, IOException;
+	
 	public LandscapeShow getShowPage(Long id, Long languageId) throws ApiException;
 	public LandscapeShow showPageBySiteNumber(Long id, Long languageId) throws ApiException;
 	public Landscape updateThumbnail(Long protectedAreaId) throws ApiException;

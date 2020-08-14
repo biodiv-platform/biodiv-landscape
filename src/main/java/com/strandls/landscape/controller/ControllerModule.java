@@ -18,6 +18,7 @@ public class ControllerModule extends AbstractModule {
 		bind(LanguageController.class).in(Scopes.SINGLETON);
 		bind(LandscapeController.class).in(Scopes.SINGLETON);
 		bind(FieldTemplateController.class).in(Scopes.SINGLETON);
+		bind(DownloadLogController.class).in(Scopes.SINGLETON);
 	}
 
 }

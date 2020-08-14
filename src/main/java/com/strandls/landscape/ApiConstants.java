@@ -17,4 +17,5 @@ public class ApiConstants {
 	public static final String LANGUAGE = "/language";
 	public static final String SITE_NUMBER = "/siteNumber";
 	public static final String SHOW = "/show";
+	public static final String DOWNLOAD = "/download";
 }

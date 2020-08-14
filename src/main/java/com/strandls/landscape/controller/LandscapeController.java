@@ -3,7 +3,11 @@
  */
 package com.strandls.landscape.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -22,6 +26,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.json.JSONException;
 
@@ -57,7 +62,7 @@ public class LandscapeController {
 
 	@Inject
 	private TemplateHeaderService templateHeaderService;
-	
+
 	@Inject
 	private FieldContentService fieldContentService;
 
@@ -77,23 +82,25 @@ public class LandscapeController {
 		Landscape landscape = landscapeService.findById(id);
 		return Response.ok().entity(landscape).build();
 	}
-	
+
 	@GET
 	@Path(ApiConstants.SHOW + ApiConstants.SITE_NUMBER + "/{id}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the landscape model by site number", response = LandscapeShow.class)
-	public Response getLandScapeBySiteNumber(@PathParam("id") Long id, @QueryParam("languageId") Long languageId) throws ApiException {
+	public Response getLandScapeBySiteNumber(@PathParam("id") Long id, @QueryParam("languageId") Long languageId)
+			throws ApiException {
 		LandscapeShow landscapeShow = landscapeService.showPageBySiteNumber(id, languageId);
 		return Response.ok().entity(landscapeShow).build();
 	}
-	
+
 	@GET
 	@Path(ApiConstants.SHOW + "/{protectedAreaId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the show page data for landscape model", response = LandscapeShow.class)
-	public Response getLandScape(@PathParam("protectedAreaId") Long id, @QueryParam("languageId") Long languageId) throws ApiException {
+	public Response getLandScape(@PathParam("protectedAreaId") Long id, @QueryParam("languageId") Long languageId)
+			throws ApiException {
 		LandscapeShow landscapeShow = landscapeService.getShowPage(id, languageId);
 		return Response.ok().entity(landscapeShow).build();
 	}
@@ -113,7 +120,7 @@ public class LandscapeController {
 			landscapes = landscapeService.findAll(limit, offset);
 		return Response.ok().entity(landscapes).build();
 	}
-	
+
 	@PUT
 	@Path("thumbnail/all")
 	@Consumes(MediaType.TEXT_PLAIN)
@@ -121,20 +128,21 @@ public class LandscapeController {
 	@ApiOperation(value = "Get list page for the landscape model", response = Landscape.class)
 	@ValidateUser
 	public Response updateThumbnailForAllLandscape(@Context HttpServletRequest request) throws ApiException {
-		if(!UserUtil.isAdmin(request))
+		if (!UserUtil.isAdmin(request))
 			return Response.status(Status.UNAUTHORIZED).build();
 		List<Landscape> landscapes = landscapeService.updateThumbnailForAllLandscape();
 		return Response.ok().entity(landscapes).build();
 	}
-	
+
 	@PUT
 	@Path("thumbnail")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get list page for the landscape model", response = Landscape.class)
 	@ValidateUser
-	public Response updateThumbnail(@Context HttpServletRequest request, @QueryParam("protectedAreaId") Long protectedAreaId) throws ApiException {
-		if(!UserUtil.isAdmin(request))
+	public Response updateThumbnail(@Context HttpServletRequest request,
+			@QueryParam("protectedAreaId") Long protectedAreaId) throws ApiException {
+		if (!UserUtil.isAdmin(request))
 			return Response.status(Status.UNAUTHORIZED).build();
 		Landscape landscape = landscapeService.updateThumbnail(protectedAreaId);
 		return Response.ok().entity(landscape).build();
@@ -149,7 +157,7 @@ public class LandscapeController {
 	@ValidateUser
 	public Response save(@Context HttpServletRequest request, String jsonString) throws JSONException, ApiException {
 		try {
-			if(!UserUtil.isAdmin(request))
+			if (!UserUtil.isAdmin(request))
 				return Response.status(Status.UNAUTHORIZED).build();
 			Landscape landscape = landscapeService.save(jsonString);
 			return Response.status(Status.CREATED).entity(landscape).build();
@@ -176,7 +184,7 @@ public class LandscapeController {
 	@ValidateUser
 	public Response addTemplateHeader(@Context HttpServletRequest request, String jsonString) {
 		try {
-			if(!UserUtil.isAdmin(request))
+			if (!UserUtil.isAdmin(request))
 				return Response.status(Status.UNAUTHORIZED).build();
 			TemplateHeader templateHeader = templateHeaderService.save(jsonString);
 			return Response.ok().entity(templateHeader).build();
@@ -185,7 +193,7 @@ public class LandscapeController {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
 	}
-	
+
 	@POST
 	@Path("field/content")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -194,7 +202,7 @@ public class LandscapeController {
 	public Response saveField(@Context HttpServletRequest request, String jsonString) {
 
 		try {
-			if(!UserUtil.isAdmin(request))
+			if (!UserUtil.isAdmin(request))
 				return Response.status(Status.UNAUTHORIZED).build();
 			TemplateTreeStructure node = landscapeService.saveField(request, jsonString);
 			return Response.ok().entity(node).build();
@@ -203,7 +211,7 @@ public class LandscapeController {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
 	}
-	
+
 	@PUT
 	@Path("field/content")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -212,7 +220,7 @@ public class LandscapeController {
 	public Response updateField(@Context HttpServletRequest request, String jsonString) {
 
 		try {
-			if(!UserUtil.isAdmin(request))
+			if (!UserUtil.isAdmin(request))
 				return Response.status(Status.UNAUTHORIZED).build();
 			FieldContent fieldContent = fieldContentService.update(jsonString);
 			return Response.ok().entity(fieldContent).build();
@@ -221,35 +229,52 @@ public class LandscapeController {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
 	}
-	
+
 	@GET
-	@Path("wkt")
+	@Path("download")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getWKT(@QueryParam("protectedAreaId") Long protectedAreaId) throws ApiException{
-		if(protectedAreaId == null) {
+	@ValidateUser
+	public Response getWKT(@Context HttpServletRequest request, @QueryParam("protectedAreaId") Long protectedAreaId,
+			@DefaultValue("wkt") @QueryParam("type") String type) throws ApiException, IOException {
+		if (protectedAreaId == null) {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
-		String wkt = landscapeService.getWKT(protectedAreaId);
-		return Response.ok().entity(wkt).build();
+		
+		File wkt = landscapeService.downloadWKT(request, protectedAreaId, type);
+			
+        InputStream in = new FileInputStream(wkt);
+        StreamingOutput sout;
+        sout = new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException, WebApplicationException {
+                byte[] buf = new byte[8192];
+                int c;
+                while ((c = in.read(buf, 0, buf.length)) > 0) {
+                    out.write(buf, 0, c);
+                    out.flush();
+                }
+                out.close();
+            }
+        };
+        return Response.ok(sout).build();
 	}
-	
+
 	@PUT
-	@Path("wkt")
+	@Path("update/wkt")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
-	public Response updateWKT(@Context HttpServletRequest request,@QueryParam("protectedAreaId") Long protectedAreaId,
-			@QueryParam("wkt") String wkt) throws ApiException{
-		if(!UserUtil.isAdmin(request))
+	public Response updateWKT(@Context HttpServletRequest request, @QueryParam("protectedAreaId") Long protectedAreaId,
+			@QueryParam("wkt") String wkt) throws ApiException {
+		if (!UserUtil.isAdmin(request))
 			return Response.status(Status.UNAUTHORIZED).build();
-		if(protectedAreaId == null || wkt == null) {
+		if (protectedAreaId == null || wkt == null) {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
 		Landscape landscape = landscapeService.updateWKT(protectedAreaId, wkt);
 		return Response.ok().entity(landscape).build();
 	}
-	
+
 	@GET
 	@Path("boundingBox/{protectedAreaId}")
 	@Consumes(MediaType.TEXT_HTML)
