@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiModel;
 @Entity
 @Table(name = "download_log")
 @XmlRootElement
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "filePath" })
 @ApiModel("DownloadLog")
 public class DownloadLog implements Serializable {
 
@@ -46,6 +46,7 @@ public class DownloadLog implements Serializable {
 	
 	@Column(name = "created_on", nullable = false)
 	private Timestamp createdOn;
+	
 	
 	@Column(name = "file_path")
 	private String filePath;

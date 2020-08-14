@@ -290,7 +290,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		downloadLog.setAuthorId(autherId);
 		downloadLog.setCreatedOn(createdOn);
 		downloadLog.setFilePath(file.getAbsolutePath());
-		downloadLog.setFilterUrl(request.getRequestURL().toString());
+		downloadLog.setFilterUrl(request.getRequestURI());
 		downloadLog.setNotes("");
 		downloadLog.setParamsMapAsText(paramsAsText);
 		downloadLog.setStatus("Success");
