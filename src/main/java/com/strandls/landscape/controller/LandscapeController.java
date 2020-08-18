@@ -234,15 +234,15 @@ public class LandscapeController {
 	@Path("download")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ValidateUser
-	public Response getWKT(@Context HttpServletRequest request, @QueryParam("protectedAreaId") Long protectedAreaId,
+	public Response downloadLandscape(@Context HttpServletRequest request, @QueryParam("protectedAreaId") Long protectedAreaId,
 			@DefaultValue("wkt") @QueryParam("type") String type) throws ApiException, IOException {
 		if (protectedAreaId == null) {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
 		
-		File wkt = landscapeService.downloadWKT(request, protectedAreaId, type);
+		File file = landscapeService.downloadLandscape(request, protectedAreaId, type);
 			
-        InputStream in = new FileInputStream(wkt);
+        InputStream in = new FileInputStream(file);
         StreamingOutput sout;
         sout = new StreamingOutput() {
             @Override
@@ -256,6 +256,8 @@ public class LandscapeController {
                 out.close();
             }
         };
+        if("PNG".equalsIgnoreCase(type))
+        	return Response.ok(sout).type("image/png").build();
         return Response.ok(sout).build();
 	}
 

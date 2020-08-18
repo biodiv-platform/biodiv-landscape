@@ -35,7 +35,7 @@ public interface LandscapeService {
 	
 	public String getWKT(Long protectedAreaId) throws ApiException;
 	public Landscape updateWKT(Long protectedAreaId, String wkt) throws ApiException;
-	public File downloadWKT(HttpServletRequest request, Long protectedAreaId, String type) throws ApiException, IOException;
+	public File downloadLandscape(HttpServletRequest request, Long protectedAreaId, String type) throws ApiException, IOException;
 	
 	public LandscapeShow getShowPage(Long id, Long languageId) throws ApiException;
 	public LandscapeShow showPageBySiteNumber(Long id, Long languageId) throws ApiException;

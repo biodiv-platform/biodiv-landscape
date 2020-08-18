@@ -50,7 +50,7 @@ import com.strandls.landscape.service.TemplateHeaderService;
 public class LandscapeServiceImpl extends AbstractService<Landscape> implements LandscapeService {
 
 	private static final Logger logger = LoggerFactory.getLogger(LandscapeServiceImpl.class);
-	
+
 	@Inject
 	private ObjectMapper objectMapper;
 	@Inject
@@ -64,18 +64,17 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 
 	@Inject
 	private GeoentitiesServicesApi geoentitiesServicesApi;
-	
+
 	@Inject
 	private DownloadLogService downloadLogService;
-	
+
 	private static final Long PARENT_ID = 0L;
-	
+
 	private static Properties properties;
 	private static String ROOT_PATH;
-	
+
 	static {
-		InputStream in = Thread.currentThread().getContextClassLoader()
-				.getResourceAsStream("config.properties");
+		InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
 
 		properties = new Properties();
 		try {
@@ -83,7 +82,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
-		
+
 		ROOT_PATH = (String) properties.get("download.path");
 	}
 
@@ -91,13 +90,13 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	public LandscapeServiceImpl(LandscapeDao dao) {
 		super(dao);
 	}
-	
+
 	@Override
 	public LandscapeShow showPageBySiteNumber(Long siteNumber, Long languageId) throws ApiException {
-		Landscape  landscape = findByPropertyWithCondtion("siteNumber", siteNumber, "=");
+		Landscape landscape = findByPropertyWithCondtion("siteNumber", siteNumber, "=");
 		return getShowPage(landscape.getId(), languageId);
 	}
-	
+
 	@Override
 	public LandscapeShow getShowPage(Long protectedAreaId, Long languageId) throws ApiException {
 		String wktData = getWKT(protectedAreaId);
@@ -175,7 +174,8 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		// PageField pageField = pageFieldService.save(jsonObject.toString());
 		PageField pageField = pageFieldService.getPageField(protectedAreaId, templateId);
 		fieldContentService.saveOrUpdate(pageField.getId(), languageId, content);
-		//fieldContentService.save(new FieldContent(null, pageField.getId(), languageId, content, false));
+		// fieldContentService.save(new FieldContent(null, pageField.getId(),
+		// languageId, content, false));
 
 		TemplateTreeStructure rootNode = new TemplateTreeStructure(pageField.getTemplateId());
 		TemplateHeader header = templateHeaderService.getHeader(pageField.getTemplateId(), languageId);
@@ -192,7 +192,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		JSONObject jsonObject = new JSONObject(jsonString);
 
 		Long geoEntityId = null;
-		
+
 		String wkt = null;
 		if (jsonObject.has("wkt")) {
 			wkt = (String) jsonObject.remove("wkt");
@@ -211,7 +211,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 			GeoentitiesWKTData geoentities = geoentitiesServicesApi.createGeoentities(geoentitiesWKTData);
 			geoEntityId = geoentities.getId();
 		}
-		
+
 		landscape.setGeoEntityId(geoEntityId);
 		landscape = save(landscape);
 
@@ -225,24 +225,24 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		}
 		return landscape;
 	}
-	
+
 	@Override
 	public Landscape updateThumbnail(Long protectedAreaId) throws ApiException {
 		Landscape landscape = findById(protectedAreaId);
 		Long geoEntityId = landscape.getGeoEntityId();
-		if(geoEntityId != null) {
-			Map<String, Object> thumbnailPath = geoentitiesServicesApi.getImagePathFromGeoEntities(geoEntityId+"");
+		if (geoEntityId != null) {
+			Map<String, Object> thumbnailPath = geoentitiesServicesApi.getImagePathFromGeoEntities(geoEntityId + "");
 			String uri = thumbnailPath.get("uri").toString();
 			landscape.setThumbnailPath(uri);
 		}
 		update(landscape);
 		return landscape;
 	}
-	
+
 	@Override
 	public List<Landscape> updateThumbnailForAllLandscape() throws ApiException {
 		List<Landscape> landscapes = findAll();
-		for(Landscape landscape : landscapes) {
+		for (Landscape landscape : landscapes) {
 			updateThumbnail(landscape.getId());
 		}
 		return findAll();
@@ -259,7 +259,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	public Landscape updateWKT(Long protectedAreaId, String wkt) throws ApiException {
 		Landscape landscape = findById(protectedAreaId);
 		Long geoEntityId = landscape.getGeoEntityId();
-		geoentitiesServicesApi.updateGeoentitiesById(geoEntityId+"", wkt);
+		geoentitiesServicesApi.updateGeoentitiesById(geoEntityId + "", wkt);
 		return landscape;
 	}
 
@@ -267,24 +267,41 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	public String getWKT(Long protectedAreaId) throws ApiException {
 		Landscape landscape = findById(protectedAreaId);
 		Long geoEntityId = landscape.getGeoEntityId();
-		GeoentitiesWKTData geoEntity = geoentitiesServicesApi.findGeoentitiesById(geoEntityId+"");
+		GeoentitiesWKTData geoEntity = geoentitiesServicesApi.findGeoentitiesById(geoEntityId + "");
 		return geoEntity.getWktData();
 	}
-	
+
 	@Override
-	public File downloadWKT(HttpServletRequest request, Long protectedAreaId, String type) throws ApiException, IOException {
-		String wkt = getWKT(protectedAreaId);
-		File file = createNewFile(wkt, protectedAreaId, type);
-		logWKTDownload(request, file, protectedAreaId, type);
+	public File downloadLandscape(HttpServletRequest request, Long protectedAreaId, String type)
+			throws ApiException, IOException {
+		
+		Landscape landscape = findById(protectedAreaId);
+		Long geoEntityId = landscape.getGeoEntityId();
+		String data = "";
+		
+		File file = null;
+		if ("WKT".equalsIgnoreCase(type)) {
+			GeoentitiesWKTData geoEntity = geoentitiesServicesApi.findGeoentitiesById(geoEntityId + "");
+			data = geoEntity.getWktData();
+			file = createNewFile(data, protectedAreaId, type);
+		} else if ("GEOJSON".equalsIgnoreCase(type)) {
+			data = geoentitiesServicesApi.getGeoJsonById(geoEntityId+"");
+			file = createNewFile(data, protectedAreaId, type);
+		} else if ("PNG".equalsIgnoreCase(type)){
+			file = geoentitiesServicesApi.getImageFromGeoEntities(geoEntityId, 500, 500, null, null);
+		}
+		
+		if(file != null)
+			logDownload(request, file, protectedAreaId, type);
 		return file;
 	}
-	
-	private void logWKTDownload(HttpServletRequest request, File file, Long protectedAreaId, String type) {
+
+	private void logDownload(HttpServletRequest request, File file, Long protectedAreaId, String type) {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 		String paramsAsText = "{protectedAreaId : " + protectedAreaId + "}";
 		Long autherId = Long.parseLong(profile.getId());
 		Timestamp createdOn = new Timestamp(new Date().getTime());
-		
+
 		DownloadLog downloadLog = new DownloadLog();
 		downloadLog.setVersion(2L);
 		downloadLog.setAuthorId(autherId);
@@ -297,19 +314,19 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		downloadLog.setType(type);
 		downloadLog.setSourceType("Landscape");
 		downloadLog.setOffsetParam(0L);
-		
+
 		downloadLogService.save(downloadLog);
 	}
 
 	private File createNewFile(String wktData, Long protecteAreaId, String type) throws IOException {
 		String randomUUID = UUID.randomUUID().toString();
-		String pathname = ROOT_PATH + File.separator +  randomUUID;
+		String pathname = ROOT_PATH + File.separator + randomUUID;
 		File dir = new File(pathname);
-		if(!dir.exists())
+		if (!dir.exists())
 			dir.mkdir();
-		pathname = pathname + File.separator + protecteAreaId + "_"  + type + ".txt";
+		pathname = pathname + File.separator + protecteAreaId + "_" + type + ".txt";
 		File file = new File(pathname);
-		if(file.exists())
+		if (file.exists())
 			return file;
 		FileWriter fileWriter = new FileWriter(file);
 		fileWriter.write(wktData);
