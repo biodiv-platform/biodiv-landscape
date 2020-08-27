@@ -296,8 +296,10 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		return file;
 	}
 
-	private void logDownload(HttpServletRequest request, File file, Long protectedAreaId, String type) {
+	private void logDownload(HttpServletRequest request, File file, Long protectedAreaId, String type) throws IOException {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		if(profile == null)
+			throw new IOException("User session is required");
 		String paramsAsText = "{protectedAreaId : " + protectedAreaId + "}";
 		Long autherId = Long.parseLong(profile.getId());
 		Timestamp createdOn = new Timestamp(new Date().getTime());

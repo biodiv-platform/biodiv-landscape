@@ -29,8 +29,10 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.json.JSONException;
+import org.pac4j.core.profile.CommonProfile;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.geoentities.ApiException;
 import com.strandls.landscape.ApiConstants;
 import com.strandls.landscape.pojo.FieldContent;
@@ -47,6 +49,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * 
@@ -230,15 +234,20 @@ public class LandscapeController {
 		}
 	}
 
-	@GET
+	@POST
 	@Path("download")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiResponses(value = { @ApiResponse(code = 401, message = "User profile is required", response = String.class) })
 	@ValidateUser
 	public Response downloadLandscape(@Context HttpServletRequest request, @QueryParam("protectedAreaId") Long protectedAreaId,
 			@DefaultValue("wkt") @QueryParam("type") String type) throws ApiException, IOException {
 		if (protectedAreaId == null) {
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}
+		
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		if(profile == null)
+			throw new WebApplicationException(Response.status(Status.UNAUTHORIZED).build());
 		
 		File file = landscapeService.downloadLandscape(request, protectedAreaId, type);
 			
