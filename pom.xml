@@ -4,7 +4,7 @@
 	<artifactId>landscape</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Landscape API</name>
+	<name>biodiv-landscape</name>
 
 	<properties>
 
