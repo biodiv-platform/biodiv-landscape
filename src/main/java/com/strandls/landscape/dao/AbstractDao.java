@@ -2,15 +2,13 @@ package com.strandls.landscape.dao;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.NoResultException;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.CriteriaSpecification;
 
 public abstract class AbstractDao<T, K extends Serializable> {
 
@@ -19,6 +17,7 @@ public abstract class AbstractDao<T, K extends Serializable> {
 	
 	protected Class<? extends T> daoType;
 
+	@SuppressWarnings("unchecked")
 	protected AbstractDao(SessionFactory sessionFactory) {
 		daoType = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 		this.sessionFactory = sessionFactory;
@@ -77,62 +76,23 @@ public abstract class AbstractDao<T, K extends Serializable> {
 
 	public abstract T findById(K id);
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public List<T> findAll() {
 		Session session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(daoType);
-		List<T> entities = criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+		List<T> entities = criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY).list();
+		session.close();
 		return entities;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public List<T> findAll(int limit, int offset) {
 		Session session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(daoType)
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-		List<T> entities = criteria.setFirstResult(offset).setMaxResults(limit).list();
-		return entities;
+				.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		session.close();
+		return criteria.setFirstResult(offset).setMaxResults(limit).list();
 	}
 	
-	//TODO:improve this to do dynamic finder on any property
-	public T findByPropertyWithCondition(String property, Object value, String condition) {
-		String queryStr = "" +
-			    "from "+daoType.getSimpleName()+" t " +
-			    "where t."+property+" "+condition+" :value" ;
-		Session session = sessionFactory.openSession();
-		org.hibernate.query.Query query = session.createQuery(queryStr);
-		query.setParameter("value", value);
-		
-		T entity = null;
-		try {
-			entity = (T) query.getSingleResult();
-		} catch(NoResultException e) {
-			throw e;
-		}
-		session.close();
-		return entity;
 
-	}
-	
-	public List<T> getByPropertyWithCondtion(String property, Object value, String condition, int limit, int offset) {
-		String queryStr = "" +
-			    "from "+daoType.getSimpleName()+" t " +
-			    "where t."+property+" "+condition+" :value" +
-			    " order by id";
-		Session session = sessionFactory.openSession();
-		org.hibernate.query.Query query = session.createQuery(queryStr);
-		query.setParameter("value", value);
-
-		List<T> resultList = new ArrayList<T>();
-		try {
-			if(limit>0 && offset >= 0)
-				query = query.setFirstResult(offset).setMaxResults(limit);
-			resultList = query.getResultList();
-			
-		} catch (NoResultException e) {
-			throw e;
-		}
-		session.close();
-		return resultList;
-	}
 }

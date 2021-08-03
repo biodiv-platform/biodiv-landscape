@@ -1,14 +1,14 @@
 package com.strandls.landscape.dao;
 
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import com.strandls.landscape.pojo.FieldContent;
 
-public class FieldContentDao extends AbstractDao<FieldContent, Long>{
+public class FieldContentDao extends AbstractDao<FieldContent, Long> {
 
 	private static final String FIELD_ID = "fieldId";
 	private static final String LANGUAGE_ID = "languageId";
@@ -21,34 +21,26 @@ public class FieldContentDao extends AbstractDao<FieldContent, Long>{
 	@Override
 	public FieldContent findById(Long id) {
 		Session session = sessionFactory.openSession();
-		FieldContent entity = null;
 		try {
-			entity = session.get(FieldContent.class, id);
-		} catch (Exception e) {
-			throw e;
+			return session.get(FieldContent.class, id);
 		} finally {
 			session.close();
 		}
-		return entity;
 	}
 
+	@SuppressWarnings("unchecked")
 	public FieldContent getFieldContent(Long fieldId, Long languageId) {
-		String queryStr = "" +
-			    "from "+daoType.getSimpleName()+" t " +
-			    "where t."+FIELD_ID+" = "+" :fieldId and "
-			    		+ "t." + LANGUAGE_ID + " = " + " :languageId" ;
+		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + "where t." + FIELD_ID + " = "
+				+ " :fieldId and " + "t." + LANGUAGE_ID + " = " + " :languageId";
 		Session session = sessionFactory.openSession();
-		org.hibernate.query.Query query = session.createQuery(queryStr);
-		query.setParameter("fieldId", fieldId);
-		query.setParameter("languageId", languageId);
-		
-		FieldContent entity = null;
+		Query<FieldContent> query = session.createQuery(queryStr);
+		query.setParameter(FIELD_ID, fieldId);
+		query.setParameter(LANGUAGE_ID, languageId);
+
 		try {
-			entity = (FieldContent) query.getSingleResult();
-		} catch(NoResultException e) {
-			throw e;
+			return query.getSingleResult();
+		} finally {
+			session.close();
 		}
-		session.close();
-		return entity;
 	}
 }

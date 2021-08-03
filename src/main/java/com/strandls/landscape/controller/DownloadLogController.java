@@ -19,7 +19,6 @@ import org.pac4j.core.profile.CommonProfile;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
-import com.strandls.geoentities.ApiException;
 import com.strandls.landscape.ApiConstants;
 import com.strandls.landscape.pojo.DownloadLog;
 import com.strandls.landscape.service.DownloadLogService;
@@ -48,7 +47,7 @@ public class DownloadLogController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Add the download log ", response = DownloadLog.class)
-	public Response saveDownloadLog(@ApiParam(name = "downloadLog") DownloadLog downloadLog) throws ApiException {
+	public Response saveDownloadLog(@ApiParam(name = "downloadLog") DownloadLog downloadLog) {
 		downloadLog = downloadLogService.save(downloadLog);
 		return Response.ok().entity(downloadLog).build();
 	}
@@ -59,10 +58,10 @@ public class DownloadLogController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the download log by autherId", response = DownloadLog.class)
 	@ValidateUser
-	public Response getDownloadLog(@Context HttpServletRequest request, @PathParam("autherId") Long autherId) throws ApiException {
+	public Response getDownloadLog(@Context HttpServletRequest request, @PathParam("autherId") Long autherId) {
 		
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-		if(!UserUtil.isAdmin(request) && !autherId.equals(profile.getId())) {
+		if(!UserUtil.isAdmin(request) && !autherId.toString().equals(profile.getId())) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
@@ -76,7 +75,7 @@ public class DownloadLogController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get all the download log ", response = DownloadLog.class, responseContainer = "List")
 	@ValidateUser
-	public Response getAllDownloadLog(@Context HttpServletRequest request) throws ApiException {
+	public Response getAllDownloadLog(@Context HttpServletRequest request) {
 		if(!UserUtil.isAdmin(request)) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}

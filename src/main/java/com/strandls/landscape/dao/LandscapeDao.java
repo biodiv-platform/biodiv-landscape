@@ -1,17 +1,16 @@
 package com.strandls.landscape.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import com.strandls.landscape.pojo.Landscape;
 
-public class LandscapeDao extends AbstractDao<Landscape, Long>{
+public class LandscapeDao extends AbstractDao<Landscape, Long> {
 
 	@Inject
 	protected LandscapeDao(SessionFactory sessionFactory) {
@@ -21,17 +20,13 @@ public class LandscapeDao extends AbstractDao<Landscape, Long>{
 	@Override
 	public Landscape findById(Long id) {
 		Session session = sessionFactory.openSession();
-		Landscape entity = null;
 		try {
-			entity = session.get(Landscape.class, id);
-		} catch (Exception e) {
-			throw e;
+			return session.get(Landscape.class, id);
 		} finally {
 			session.close();
 		}
-		return entity;
 	}
-	
+
 	/**
 	 * Overridden just to sort it by site number rather than id.
 	 */
@@ -39,24 +34,34 @@ public class LandscapeDao extends AbstractDao<Landscape, Long>{
 	public List<Landscape> findAll() {
 		return findAll(-1, -1);
 	}
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Landscape> findAll(int limit, int offset) {
-		String queryStr = "" +
-			    "from "+daoType.getSimpleName()+" t " +
-			    " order by siteNumber";
+		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + " order by siteNumber";
 		Session session = sessionFactory.openSession();
-		org.hibernate.query.Query query = session.createQuery(queryStr);
+		Query<Landscape> query = session.createQuery(queryStr);
 
-		List<Landscape> resultList = new ArrayList<Landscape>();
 		try {
-			if(limit>0 && offset >= 0)
+			if (limit > 0 && offset >= 0)
 				query = query.setFirstResult(offset).setMaxResults(limit);
-			resultList = query.getResultList();
-			
-		} catch (NoResultException e) {
-			throw e;
+			return query.getResultList();
+
+		} finally {
+			session.close();
 		}
-		session.close();
-		return resultList;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Landscape findBySiteNumber(Long siteNumber) {
+		String queryStr = "" + "from Landscape t " + " where t.siteNumber = :siteNumber";
+		Session session = sessionFactory.openSession();
+		Query<Landscape> query = session.createQuery(queryStr);
+		query.setParameter("siteNumber", siteNumber);
+		try {
+			return query.getSingleResult();
+		} finally {
+			session.close();
+		}
 	}
 }

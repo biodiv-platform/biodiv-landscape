@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.landscape.dao.PageFieldDao;
 import com.strandls.landscape.pojo.PageField;
@@ -23,7 +21,7 @@ public class PageFieldServiceImpl extends AbstractService<PageField> implements 
 	}
 
 	@Override
-	public PageField save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
+	public PageField save(String jsonString) throws IOException {
 		PageField pageField = objectMapper.readValue(jsonString, PageField.class);
 		pageField = save(pageField);
 		return pageField;

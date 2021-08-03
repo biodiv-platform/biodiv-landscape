@@ -1,10 +1,10 @@
 package com.strandls.landscape.dao;
 
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import com.strandls.landscape.pojo.PageField;
 
@@ -20,34 +20,28 @@ public class PageFieldDao extends AbstractDao<PageField, Long>{
 	@Override
 	public PageField findById(Long id) {
 		Session session = sessionFactory.openSession();
-		PageField entity = null;
 		try {
-			entity = session.get(PageField.class, id);
-		} catch (Exception e) {
-			throw e;
+			return session.get(PageField.class, id);
 		} finally {
 			session.close();
 		}
-		return entity;
 	}
 
+	@SuppressWarnings("unchecked")
 	public PageField getPageField(Long protectedAreaId, Long templateId) {
 		String queryStr = "" +
 			    "from "+daoType.getSimpleName()+" t " +
 			    "where t."+PROTECTED_AREA_ID+" = "+" :protectedAreaId and "
 			    		+ "t." + TEMPLATE_ID + " = " + " :templateId" ;
 		Session session = sessionFactory.openSession();
-		org.hibernate.query.Query query = session.createQuery(queryStr);
-		query.setParameter("protectedAreaId", protectedAreaId);
-		query.setParameter("templateId", templateId);
+		Query<PageField> query = session.createQuery(queryStr);
+		query.setParameter(PROTECTED_AREA_ID, protectedAreaId);
+		query.setParameter(TEMPLATE_ID, templateId);
 		
-		PageField entity = null;
 		try {
-			entity = (PageField) query.getSingleResult();
-		} catch(NoResultException e) {
-			throw e;
+			return query.getSingleResult();
+		} finally {
+			session.close();
 		}
-		session.close();
-		return entity;
 	}
 }

@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.landscape.dao.FieldTemplateDao;
 import com.strandls.landscape.pojo.FieldTemplate;
@@ -35,7 +33,7 @@ public class FieldTemplateServiceImpl extends AbstractService<FieldTemplate> imp
 	/**
 	 * Here we need to add the fields for all the protected areas.
 	 */
-	public FieldTemplate save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
+	public FieldTemplate save(String jsonString) throws IOException {
 		FieldTemplate fieldTemplate = objectMapper.readValue(jsonString, FieldTemplate.class);
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		if(fieldTemplate.getCreatedOn() == null)

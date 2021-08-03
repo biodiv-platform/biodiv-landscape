@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.json.JSONException;
 import org.pac4j.core.profile.CommonProfile;
 
@@ -38,6 +40,7 @@ import com.strandls.landscape.ApiConstants;
 import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.pojo.Landscape;
 import com.strandls.landscape.pojo.TemplateHeader;
+import com.strandls.landscape.pojo.request.FieldContentData;
 import com.strandls.landscape.pojo.response.LandscapeShow;
 import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 import com.strandls.landscape.service.FieldContentService;
@@ -176,8 +179,7 @@ public class LandscapeController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Add template header")
 	public Response getTemplateHeader(@QueryParam("languageId") Long languageId) {
-		List<TemplateHeader> templateHeaders = templateHeaderService.getByPropertyWithCondtion("languageId", languageId,
-				"=", -1, -1);
+		List<TemplateHeader> templateHeaders = templateHeaderService.getByLanguageId(languageId);
 		return Response.ok().entity(templateHeaders).build();
 	}
 
@@ -198,19 +200,37 @@ public class LandscapeController {
 		}
 	}
 
+	@Path("upload/field/content")
+	@POST
+	@Consumes({ MediaType.MULTIPART_FORM_DATA })
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Upload the file for taxon definition", notes = "Returns succuess failure", response = FieldContent.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "file not present", response = String.class),
+			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
+	//@ValidateUser
+	public Response upload(@Context HttpServletRequest request, final FormDataMultiPart multiPart) {
+		try {
+			Map<String, Object> result = landscapeService.uploadFile(request, multiPart);
+			return Response.ok().entity(result).build();
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
 	@POST
 	@Path("field/content")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "update field content to Landscape", response = TemplateTreeStructure.class)
 	@ValidateUser
-	public Response saveField(@Context HttpServletRequest request, String jsonString) {
+	public Response saveField(@Context HttpServletRequest request, FieldContentData fieldContentData) {
 
 		try {
 			if (!UserUtil.isAdmin(request))
 				return Response.status(Status.UNAUTHORIZED).build();
-			TemplateTreeStructure node = landscapeService.saveField(request, jsonString);
+			TemplateTreeStructure node = landscapeService.saveField(request, fieldContentData);
 			return Response.ok().entity(node).build();
-		} catch (JSONException | IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).build());
 		}

@@ -12,7 +12,6 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.nimbusds.jose.jwk.ThumbprintUtils;
 
 import io.swagger.annotations.ApiModel;
 

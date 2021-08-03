@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.landscape.dao.LanguageDao;
 import com.strandls.landscape.pojo.Language;
@@ -22,7 +20,7 @@ public class LanguageServiceImpl extends AbstractService<Language> implements La
 		super(dao);
 	}
 
-	public Language save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
+	public Language save(String jsonString) throws IOException {
 		Language fieldTemplate = objectMapper.readValue(jsonString, Language.class);
 		fieldTemplate = save(fieldTemplate);
 		return fieldTemplate;

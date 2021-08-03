@@ -8,8 +8,6 @@ import javax.persistence.NoResultException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.strandls.landscape.dao.FieldContentDao;
 import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.service.AbstractService;
@@ -23,7 +21,7 @@ public class FieldContentServiceImpl extends AbstractService<FieldContent> imple
 	}
 	
 	@Override
-	public FieldContent saveOrUpdate(Long pageFieldId, Long languageId, String content) throws JsonParseException, JsonMappingException, IOException, JSONException {
+	public FieldContent saveOrUpdate(Long pageFieldId, Long languageId, String content) throws IOException{
 		FieldContent fieldContent;
 		try {
 			fieldContent = getFieldContent(pageFieldId, languageId);
@@ -37,7 +35,7 @@ public class FieldContentServiceImpl extends AbstractService<FieldContent> imple
 	}
 	
 	@Override
-	public FieldContent update(String jsonString) throws JsonParseException, JsonMappingException, IOException, JSONException {
+	public FieldContent update(String jsonString) throws IOException, JSONException {
 		JSONObject jsonObject = new JSONObject(jsonString);
 		Long pageFieldId = jsonObject.getLong("id");
 		Long languageId = jsonObject.getLong("languageId");

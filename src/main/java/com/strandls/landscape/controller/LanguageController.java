@@ -37,11 +37,11 @@ import io.swagger.annotations.ApiOperation;
 @Api("Language")
 public class LanguageController {
 
-	private LanguageService LanguageService;
+	private LanguageService languageService;
 	
 	@Inject
 	public LanguageController(LanguageService languageService) {
-		this.LanguageService = languageService;
+		this.languageService = languageService;
 	}
 
 	@Path("{id}")
@@ -50,7 +50,7 @@ public class LanguageController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the Language by its id", response = Language.class)
 	public Response find(@Context HttpServletRequest request, @PathParam("id") Long id) {
-		Language language = LanguageService.findById(id);
+		Language language = languageService.findById(id);
 		return Response.status(Status.CREATED).entity(language).build();
 	}
 
@@ -59,7 +59,7 @@ public class LanguageController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get all the languages", response = Language.class, responseContainer = "List")
 	public Response findAll(@Context HttpServletRequest request) {
-		List<Language> languages = LanguageService.findAll();
+		List<Language> languages = languageService.findAll();
 		return Response.ok().entity(languages).build();
 	}
 
@@ -71,7 +71,7 @@ public class LanguageController {
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
 	public Response save(@Context HttpServletRequest request, String jsonString) {
 		try {
-			Language language = LanguageService.save(jsonString);
+			Language language = languageService.save(jsonString);
 			return Response.status(Status.CREATED).entity(language).build();
 		} catch (IOException e) {
 			e.printStackTrace();

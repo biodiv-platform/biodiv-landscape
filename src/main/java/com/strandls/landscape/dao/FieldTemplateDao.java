@@ -17,14 +17,10 @@ public class FieldTemplateDao extends AbstractDao<FieldTemplate, Long>{
 	@Override
 	public FieldTemplate findById(Long id) {
 		Session session = sessionFactory.openSession();
-		FieldTemplate entity = null;
 		try {
-			entity = session.get(FieldTemplate.class, id);
-		} catch (Exception e) {
-			throw e;
+			return session.get(FieldTemplate.class, id);
 		} finally {
 			session.close();
 		}
-		return entity;
 	}
 }

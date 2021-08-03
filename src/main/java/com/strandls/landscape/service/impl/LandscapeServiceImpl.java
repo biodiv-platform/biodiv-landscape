@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -16,16 +19,19 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.CSVReader;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.geoentities.ApiException;
 import com.strandls.geoentities.controllers.GeoentitiesServicesApi;
@@ -37,6 +43,7 @@ import com.strandls.landscape.pojo.FieldTemplate;
 import com.strandls.landscape.pojo.Landscape;
 import com.strandls.landscape.pojo.PageField;
 import com.strandls.landscape.pojo.TemplateHeader;
+import com.strandls.landscape.pojo.request.FieldContentData;
 import com.strandls.landscape.pojo.response.LandscapeShow;
 import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 import com.strandls.landscape.service.AbstractService;
@@ -71,7 +78,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	private static final Long PARENT_ID = 0L;
 
 	private static Properties properties;
-	private static String ROOT_PATH;
+	private static String rootPath;
 
 	static {
 		InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
@@ -83,7 +90,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 			logger.error(e.getMessage());
 		}
 
-		ROOT_PATH = (String) properties.get("download.path");
+		rootPath = (String) properties.get("download.path");
 	}
 
 	@Inject
@@ -93,7 +100,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 
 	@Override
 	public LandscapeShow showPageBySiteNumber(Long siteNumber, Long languageId) throws ApiException {
-		Landscape landscape = findByPropertyWithCondtion("siteNumber", siteNumber, "=");
+		Landscape landscape = ((LandscapeDao) dao).findBySiteNumber(siteNumber);
 		return getShowPage(landscape.getId(), languageId);
 	}
 
@@ -102,8 +109,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		String wktData = getWKT(protectedAreaId);
 		List<List<Object>> boundingBox = getBoundingBox(protectedAreaId);
 		TemplateTreeStructure treeStructure = getPageStructure(protectedAreaId, languageId);
-		LandscapeShow landscapeShow = new LandscapeShow(wktData, boundingBox, treeStructure);
-		return landscapeShow;
+		return new LandscapeShow(wktData, boundingBox, treeStructure);
 	}
 
 	public TemplateTreeStructure getPageStructure(Long protectedAreaId, Long languageId) {
@@ -111,26 +117,20 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		List<FieldTemplate> fieldTemplate = fieldTemplateService.findAll();
 
 		// sent -1 as template Id as initial parentId
-		TemplateTreeStructure treeStructure = getTreeStructure(fieldTemplate, PARENT_ID, languageId, protectedAreaId);
-		return treeStructure;
+		return getTreeStructure(fieldTemplate, PARENT_ID, languageId, protectedAreaId);
 	}
 
 	private TemplateTreeStructure getTreeStructure(List<FieldTemplate> fieldTemplates, Long templateId, Long languageId,
 			Long protectedAreaId) {
 
-		List<FieldTemplate> childs = new ArrayList<FieldTemplate>();
+		List<FieldTemplate> childs = new ArrayList<>();
 
 		for (FieldTemplate fieldTemplate : fieldTemplates) {
 			if (fieldTemplate.getParentId().equals(templateId))
 				childs.add(fieldTemplate);
 		}
 
-		childs.sort(new Comparator<FieldTemplate>() {
-			@Override
-			public int compare(FieldTemplate o1, FieldTemplate o2) {
-				return (int) (o1.getFieldIndex() - o2.getFieldIndex());
-			}
-		});
+		childs.sort((o1, o2) -> (int) (o1.getFieldIndex() - o2.getFieldIndex()));
 
 		TemplateTreeStructure treeStructure = new TemplateTreeStructure(templateId);
 		for (FieldTemplate fieldTemplate : childs) {
@@ -138,21 +138,18 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 					.addChild(getTreeStructure(fieldTemplates, fieldTemplate.getId(), languageId, protectedAreaId));
 		}
 
-		if (templateId == PARENT_ID) {
+		if (PARENT_ID.equals(templateId)) {
 			treeStructure.setHeader("root");
 			treeStructure.setContent("root");
 			return treeStructure;
 		}
-		System.out.println(protectedAreaId + " " + templateId);
 		PageField pageField = pageFieldService.getPageField(protectedAreaId, templateId);
 		treeStructure.setPageFieldId(pageField.getId());
-		if (pageField != null) {
-			try {
-				FieldContent fieldContent = fieldContentService.getFieldContent(pageField.getId(), languageId);
-				treeStructure.setContent(fieldContent.getContent());
-			} catch (NoResultException e) {
-				treeStructure.setContent("");
-			}
+		try {
+			FieldContent fieldContent = fieldContentService.getFieldContent(pageField.getId(), languageId);
+			treeStructure.setContent(fieldContent.getContent());
+		} catch (NoResultException e) {
+			treeStructure.setContent("");
 		}
 
 		TemplateHeader templateHeader = templateHeaderService.getHeader(templateId, languageId);
@@ -163,19 +160,50 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	}
 
 	@Override
-	public TemplateTreeStructure saveField(HttpServletRequest request, String jsonString)
-			throws JSONException, JsonParseException, JsonMappingException, IOException {
-		JSONObject jsonObject = new JSONObject(jsonString);
-		Long languageId = Long.parseLong(jsonObject.get("languageId").toString());
-		String content = jsonObject.get("content").toString();
-		Long templateId = Long.parseLong(jsonObject.get("templateId").toString());
-		Long protectedAreaId = Long.parseLong(jsonObject.get("protectedAreaId").toString());
+	public Map<String, Object> uploadFile(HttpServletRequest request, FormDataMultiPart multiPart) throws IOException {
 
-		// PageField pageField = pageFieldService.save(jsonObject.toString());
+		FormDataBodyPart formdata = multiPart.getField("csv");
+		if (formdata == null) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity("Metadata file not present").build());
+		}
+		InputStream metaDataInputStream = formdata.getValueAs(InputStream.class);
+		InputStreamReader inputStreamReader = new InputStreamReader(metaDataInputStream, StandardCharsets.UTF_8);
+		CSVReader reader = new CSVReader(inputStreamReader);
+
+		Iterator<String[]> it = reader.iterator();
+		it.next(); // Just iterate it for the header
+
+		Map<String, Object> result = new HashMap<>();
+		while (it.hasNext()) {
+			String[] data = it.next();
+			Long protectedAreaId = Long.parseLong(data[0]);
+			Long languageId = Long.parseLong(data[1]);
+			Long templateId = Long.parseLong(data[2]);
+			String content = data[3];
+
+			FieldContentData field = new FieldContentData(protectedAreaId, languageId, templateId, content);
+			try {
+				saveField(request, field);
+			} catch (IOException e) {
+				result.put(content, "Exception while saving content" + e.getMessage());
+			}
+		}
+		reader.close();
+		return result;
+	}
+
+	@Override
+	public TemplateTreeStructure saveField(HttpServletRequest request, FieldContentData fieldContentData)
+			throws IOException {
+
+		Long languageId = fieldContentData.getLanguageId();
+		String content = fieldContentData.getContent();
+		Long templateId = fieldContentData.getTemplateId();
+		Long protectedAreaId = fieldContentData.getProtectedAreaId();
+
 		PageField pageField = pageFieldService.getPageField(protectedAreaId, templateId);
 		fieldContentService.saveOrUpdate(pageField.getId(), languageId, content);
-		// fieldContentService.save(new FieldContent(null, pageField.getId(),
-		// languageId, content, false));
 
 		TemplateTreeStructure rootNode = new TemplateTreeStructure(pageField.getTemplateId());
 		TemplateHeader header = templateHeaderService.getHeader(pageField.getTemplateId(), languageId);
@@ -186,8 +214,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	}
 
 	@Override
-	public Landscape save(String jsonString)
-			throws JsonParseException, JsonMappingException, IOException, JSONException, ApiException {
+	public Landscape save(String jsonString) throws IOException, JSONException, ApiException {
 
 		JSONObject jsonObject = new JSONObject(jsonString);
 
@@ -206,8 +233,6 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 			GeoentitiesWKTData geoentitiesWKTData = new GeoentitiesWKTData();
 			geoentitiesWKTData.setPlaceName(placeName);
 			geoentitiesWKTData.setWktData(wkt);
-			System.out.println(placeName);
-			System.out.println(wkt);
 			GeoentitiesWKTData geoentities = geoentitiesServicesApi.createGeoentities(geoentitiesWKTData);
 			geoEntityId = geoentities.getId();
 		}
@@ -274,31 +299,32 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	@Override
 	public File downloadLandscape(HttpServletRequest request, Long protectedAreaId, String type)
 			throws ApiException, IOException {
-		
+
 		Landscape landscape = findById(protectedAreaId);
 		Long geoEntityId = landscape.getGeoEntityId();
 		String data = "";
-		
+
 		File file = null;
 		if ("WKT".equalsIgnoreCase(type)) {
 			GeoentitiesWKTData geoEntity = geoentitiesServicesApi.findGeoentitiesById(geoEntityId + "");
 			data = geoEntity.getWktData();
 			file = createNewFile(data, protectedAreaId, type);
 		} else if ("GEOJSON".equalsIgnoreCase(type)) {
-			data = geoentitiesServicesApi.getGeoJsonById(geoEntityId+"");
+			data = geoentitiesServicesApi.getGeoJsonById(geoEntityId + "");
 			file = createNewFile(data, protectedAreaId, type);
-		} else if ("PNG".equalsIgnoreCase(type)){
+		} else if ("PNG".equalsIgnoreCase(type)) {
 			file = geoentitiesServicesApi.getImageFromGeoEntities(geoEntityId, 500, 500, null, null);
 		}
-		
-		if(file != null)
+
+		if (file != null)
 			logDownload(request, file, protectedAreaId, type);
 		return file;
 	}
 
-	private void logDownload(HttpServletRequest request, File file, Long protectedAreaId, String type) throws IOException {
+	private void logDownload(HttpServletRequest request, File file, Long protectedAreaId, String type)
+			throws IOException {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-		if(profile == null)
+		if (profile == null)
 			throw new IOException("User session is required");
 		String paramsAsText = "{protectedAreaId : " + protectedAreaId + "}";
 		Long autherId = Long.parseLong(profile.getId());
@@ -322,7 +348,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 
 	private File createNewFile(String wktData, Long protecteAreaId, String type) throws IOException {
 		String randomUUID = UUID.randomUUID().toString();
-		String pathname = ROOT_PATH + File.separator + randomUUID;
+		String pathname = rootPath + File.separator + randomUUID;
 		File dir = new File(pathname);
 		if (!dir.exists())
 			dir.mkdir();

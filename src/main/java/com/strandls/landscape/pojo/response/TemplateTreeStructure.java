@@ -19,7 +19,7 @@ public class TemplateTreeStructure {
 	private List<TemplateTreeStructure> childs;
 	
 	public TemplateTreeStructure(Long id) {
-		this(id, new ArrayList<TemplateTreeStructure>());
+		this(id, new ArrayList<>());
 	}
 	public TemplateTreeStructure(Long id, List<TemplateTreeStructure> childs) {
 		this.id = id;

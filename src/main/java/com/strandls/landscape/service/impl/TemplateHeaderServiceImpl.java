@@ -1,11 +1,10 @@
 package com.strandls.landscape.service.impl;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.landscape.dao.TemplateHeaderDao;
 import com.strandls.landscape.pojo.TemplateHeader;
@@ -22,7 +21,7 @@ public class TemplateHeaderServiceImpl extends AbstractService<TemplateHeader> i
 	}
 
 	@Override
-	public TemplateHeader save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
+	public TemplateHeader save(String jsonString) throws IOException {
 		TemplateHeader templateHeader = objectMapper.readValue(jsonString, TemplateHeader.class);	
 		templateHeader = save(templateHeader);
 		return templateHeader;
@@ -31,5 +30,10 @@ public class TemplateHeaderServiceImpl extends AbstractService<TemplateHeader> i
 	@Override
 	public TemplateHeader getHeader(Long templateId, Long languageId) {
 		return ((TemplateHeaderDao) dao).getHeader(templateId, languageId);
+	}
+
+	@Override
+	public List<TemplateHeader> getByLanguageId(Long languageId) {
+		return ((TemplateHeaderDao) dao).getByLanguageId(languageId);
 	}
 }

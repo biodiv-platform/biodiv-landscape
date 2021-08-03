@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 
 public class LandscapeConfig {
+	
+	private LandscapeConfig() {}
 
 	private static final Logger logger = LoggerFactory.getLogger(LandscapeConfig.class);
 	

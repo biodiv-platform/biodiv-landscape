@@ -74,24 +74,6 @@ public class DownloadLog implements Serializable {
 
 	public DownloadLog() {
 		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	public DownloadLog(Long id, Long version, Long authorId, Timestamp createdOn, String filePath, String filterUrl,
-			String notes, String paramsMapAsText, String status, String type, String sourceType, Long offsetParam) {
-		super();
-		this.id = id;
-		this.version = version;
-		this.authorId = authorId;
-		this.createdOn = createdOn;
-		this.filePath = filePath;
-		this.filterUrl = filterUrl;
-		this.notes = notes;
-		this.paramsMapAsText = paramsMapAsText;
-		this.status = status;
-		this.type = type;
-		this.sourceType = sourceType;
-		this.offsetParam = offsetParam;
 	}
 
 	public Long getId() {

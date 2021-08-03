@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.landscape.dao.DownloadLogDao;
 import com.strandls.landscape.pojo.DownloadLog;
@@ -23,7 +21,7 @@ public class DownloadLogServiceImpl extends AbstractService<DownloadLog> impleme
 		super(dao);
 	}
 
-	public DownloadLog save(String jsonString) throws JsonParseException, JsonMappingException, IOException {
+	public DownloadLog save(String jsonString) throws IOException {
 		DownloadLog downloadLog = objectMapper.readValue(jsonString, DownloadLog.class);
 		downloadLog = save(downloadLog);
 		return downloadLog;
