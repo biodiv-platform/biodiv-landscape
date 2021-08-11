@@ -68,7 +68,7 @@ public class DownloadLogController {
 		data.setFileType(downloadLog.getType());
 		data.setFilterUrl(downloadLog.getFilterUrl());
 		data.setStatus(downloadLog.getStatus());
-		data.setSourcetype("Lanscapoe");
+		data.setSourcetype("Landscape");
 		userServiceApi = headers.addUserHeaders(userServiceApi, request.getHeader(HttpHeaders.AUTHORIZATION));
 
 		try {
