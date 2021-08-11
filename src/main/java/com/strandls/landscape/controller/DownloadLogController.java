@@ -11,6 +11,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.landscape.ApiConstants;
+import com.strandls.landscape.Headers;
 import com.strandls.landscape.pojo.DownloadLog;
 import com.strandls.landscape.service.DownloadLogService;
 import com.strandls.landscape.util.UserUtil;
@@ -36,14 +38,15 @@ import io.swagger.annotations.ApiParam;
 @Path(ApiConstants.DOWNLOAD)
 @Api("DownloadLog")
 public class DownloadLogController {
-	
-	private final Logger logger = LoggerFactory.getLogger(DownloadLogController.class);
 
 	@Inject
 	private DownloadLogService downloadLogService;
 
 	@Inject
 	private UserServiceApi userServiceApi;
+
+	@Inject
+	private Headers headers;
 
 	@GET
 	@Path(ApiConstants.PING)
@@ -57,13 +60,17 @@ public class DownloadLogController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Add the download log ", response = DownloadLog.class)
-	public Response saveDownloadLog(@ApiParam(name = "downloadLog") DownloadLog downloadLog) {
+	@ValidateUser
+	public Response saveDownloadLog(@Context HttpServletRequest request,
+			@ApiParam(name = "downloadLog") DownloadLog downloadLog) {
 		DownloadLogData data = new DownloadLogData();
 		data.setFilePath(downloadLog.getFilePath());
 		data.setFileType(downloadLog.getType());
 		data.setFilterUrl(downloadLog.getFilterUrl());
 		data.setStatus(downloadLog.getStatus());
 		data.setSourcetype("Lanscapoe");
+		userServiceApi = headers.addUserHeaders(userServiceApi, request.getHeader(HttpHeaders.AUTHORIZATION));
+
 		try {
 			return Response.ok().entity(userServiceApi.logDocumentDownload(data)).build();
 		} catch (ApiException e) {

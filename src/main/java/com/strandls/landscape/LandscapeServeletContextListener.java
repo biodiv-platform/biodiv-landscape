@@ -81,6 +81,7 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
 				bind(GeoentitiesServicesApi.class).in(Scopes.SINGLETON);
+				bind(Headers.class).in(Scopes.SINGLETON);
 				bind(UserServiceApi.class).in(Scopes.SINGLETON);
 				bind(ServletContainer.class).in(Scopes.SINGLETON);
 				
