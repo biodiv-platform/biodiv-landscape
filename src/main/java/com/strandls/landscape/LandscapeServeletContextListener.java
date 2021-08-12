@@ -40,6 +40,7 @@ import com.strandls.geoentities.controllers.GeoentitiesServicesApi;
 import com.strandls.landscape.controller.ControllerModule;
 import com.strandls.landscape.dao.DaoModule;
 import com.strandls.landscape.service.ServiceModule;
+import com.strandls.user.controller.UserServiceApi;
 
 /**
  * 
@@ -80,6 +81,8 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
 				bind(GeoentitiesServicesApi.class).in(Scopes.SINGLETON);
+				bind(Headers.class).in(Scopes.SINGLETON);
+				bind(UserServiceApi.class).in(Scopes.SINGLETON);
 				bind(ServletContainer.class).in(Scopes.SINGLETON);
 				
 				serve("/api/*").with(ServletContainer.class, props);
