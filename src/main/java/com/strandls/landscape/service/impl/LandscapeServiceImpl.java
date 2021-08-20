@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
@@ -37,7 +38,6 @@ import com.strandls.geoentities.ApiException;
 import com.strandls.geoentities.controllers.GeoentitiesServicesApi;
 import com.strandls.geoentities.pojo.GeoentitiesWKTData;
 import com.strandls.landscape.dao.LandscapeDao;
-import com.strandls.landscape.pojo.DownloadLog;
 import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.pojo.FieldTemplate;
 import com.strandls.landscape.pojo.Landscape;
@@ -47,12 +47,14 @@ import com.strandls.landscape.pojo.request.FieldContentData;
 import com.strandls.landscape.pojo.response.LandscapeShow;
 import com.strandls.landscape.pojo.response.TemplateTreeStructure;
 import com.strandls.landscape.service.AbstractService;
-import com.strandls.landscape.service.DownloadLogService;
 import com.strandls.landscape.service.FieldContentService;
 import com.strandls.landscape.service.FieldTemplateService;
 import com.strandls.landscape.service.LandscapeService;
 import com.strandls.landscape.service.PageFieldService;
 import com.strandls.landscape.service.TemplateHeaderService;
+import com.strandls.landscape.Headers;
+import com.strandls.user.controller.UserServiceApi;
+import com.strandls.user.pojo.DownloadLogData;
 
 public class LandscapeServiceImpl extends AbstractService<Landscape> implements LandscapeService {
 
@@ -72,8 +74,12 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	@Inject
 	private GeoentitiesServicesApi geoentitiesServicesApi;
 
+
 	@Inject
-	private DownloadLogService downloadLogService;
+	private UserServiceApi userService;
+
+	@Inject
+	private Headers headers;
 
 	private static final Long PARENT_ID = 0L;
 
@@ -324,26 +330,20 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	private void logDownload(HttpServletRequest request, File file, Long protectedAreaId, String type)
 			throws IOException {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		userService = headers.addUserHeaders(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		if (profile == null)
 			throw new IOException("User session is required");
-		String paramsAsText = "{protectedAreaId : " + protectedAreaId + "}";
-		Long autherId = Long.parseLong(profile.getId());
-		Timestamp createdOn = new Timestamp(new Date().getTime());
-
-		DownloadLog downloadLog = new DownloadLog();
-		downloadLog.setVersion(2L);
-		downloadLog.setAuthorId(autherId);
-		downloadLog.setCreatedOn(createdOn);
-		downloadLog.setFilePath(file.getAbsolutePath());
-		downloadLog.setFilterUrl(request.getRequestURI());
-		downloadLog.setNotes("");
-		downloadLog.setParamsMapAsText(paramsAsText);
-		downloadLog.setStatus("Success");
-		downloadLog.setType(type);
-		downloadLog.setSourceType("Landscape");
-		downloadLog.setOffsetParam(0L);
-
-		downloadLogService.save(downloadLog);
+		DownloadLogData data = new DownloadLogData();
+		data.setFilePath(file.getAbsolutePath().replace("/app/data/biodiv/", "/"));
+		data.setFileType(type);
+		data.setFilterUrl(request.getRequestURI());
+		data.setStatus("Success");
+		data.setSourcetype("Landscape");
+		try {
+			userService.logDocumentDownload(data);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
 	}
 
 	private File createNewFile(String wktData, Long protecteAreaId, String type) throws IOException {
