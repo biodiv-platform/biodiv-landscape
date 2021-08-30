@@ -339,6 +339,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		data.setFilterUrl(request.getRequestURI());
 		data.setStatus("Success");
 		data.setSourcetype("Landscape");
+		data.setNotes(file.getName());
 		try {
 			userService.logDocumentDownload(data);
 		} catch (Exception e) {
