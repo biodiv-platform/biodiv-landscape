@@ -323,11 +323,11 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		}
 
 		if (file != null)
-			logDownload(request, file, protectedAreaId, type);
+			logDownload(request, file, landscape.getShortName(), type);
 		return file;
 	}
 
-	private void logDownload(HttpServletRequest request, File file, Long protectedAreaId, String type)
+	private void logDownload(HttpServletRequest request, File file, String shortName, String type)
 			throws IOException {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 		userService = headers.addUserHeaders(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
@@ -339,7 +339,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		data.setFilterUrl(request.getRequestURI());
 		data.setStatus("Success");
 		data.setSourcetype("Landscape");
-		data.setNotes(file.getName());
+		data.setNotes(shortName);	
 		try {
 			userService.logDocumentDownload(data);
 		} catch (Exception e) {
