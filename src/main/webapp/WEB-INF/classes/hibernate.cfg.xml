@@ -12,6 +12,8 @@
 		<property name="hbm2ddl.auto">update</property>
 		<property name="show_sql">false</property>
 		
+		<property name="hibernate.connection.provider_class">org.hibernate.hikaricp.internal.HikariCPConnectionProvider</property>
+		
 		<!-- Maximum waiting time for a connection from the pool -->
 		<property name="hibernate.hikari.connectionTimeout">1000</property>
 
