@@ -233,6 +233,13 @@
 			<version>5.2.12.Final</version>
 		</dependency>
 		
+		<!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>com.bedatadriven</groupId>
 			<artifactId>jackson-datatype-jts</artifactId>
