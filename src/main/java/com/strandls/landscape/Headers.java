@@ -1,12 +1,11 @@
 /**
- * 
+ *
  */
 package com.strandls.landscape;
 
-import javax.ws.rs.core.HttpHeaders;
-
 import com.strandls.user.controller.UserServiceApi;
 
+import jakarta.ws.rs.core.HttpHeaders;
 
 public class Headers {
 

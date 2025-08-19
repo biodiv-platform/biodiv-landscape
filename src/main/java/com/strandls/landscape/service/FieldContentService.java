@@ -23,6 +23,5 @@ public interface FieldContentService {
 
 	FieldContent update(String jsonString) throws IOException, JSONException;
 
-	FieldContent saveOrUpdate(Long pageFieldId, Long languageId, String content)
-			throws IOException;
+	FieldContent saveOrUpdate(Long pageFieldId, Long languageId, String content) throws IOException;
 }

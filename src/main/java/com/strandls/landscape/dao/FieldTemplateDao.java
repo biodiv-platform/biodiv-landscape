@@ -1,13 +1,13 @@
 package com.strandls.landscape.dao;
 
-import javax.inject.Inject;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.strandls.landscape.pojo.FieldTemplate;
 
-public class FieldTemplateDao extends AbstractDao<FieldTemplate, Long>{
+import jakarta.inject.Inject;
+
+public class FieldTemplateDao extends AbstractDao<FieldTemplate, Long> {
 
 	@Inject
 	protected FieldTemplateDao(SessionFactory sessionFactory) {

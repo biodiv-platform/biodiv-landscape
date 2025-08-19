@@ -2,13 +2,13 @@ package com.strandls.landscape.service.impl;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.landscape.dao.PageFieldDao;
 import com.strandls.landscape.pojo.PageField;
 import com.strandls.landscape.service.AbstractService;
 import com.strandls.landscape.service.PageFieldService;
+
+import jakarta.inject.Inject;
 
 public class PageFieldServiceImpl extends AbstractService<PageField> implements PageFieldService {
 

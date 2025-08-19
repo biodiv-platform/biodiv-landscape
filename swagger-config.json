@@ -1,14 +1,13 @@
 {
-  "modelPackage": "com.strandls.landscape.pojo",
-  "apiPackage": "com.strandls.landscape.controller",
-  "invokerPackage": "com.strandls.landscape",
-  "groupId": "com.strandls.biodiv",
-  "artifactId": "landscape-client",
-  "artifactVersion": "1.0.0-SNAPSHOT",
-  "fullJavaUtil": true,
-  "dateLibrary": "legacy",
-  "library": "jersey2",
-  "developerName": "Abhishek Kumar Rudra",
-  "developerEmail": "abhishek.rudra@strandls.com",
-  "java8": true
+	"modelPackage": "com.strandls.landscape.pojo",
+	"apiPackage": "com.strandls.landscape.controller",
+	"invokerPackage": "com.strandls.landscape",
+	"groupId": "com.strandls.biodiv",
+	"artifactId": "landscape-client",
+	"artifactVersion": "0.0.21",
+	"fullJavaUtil": true,
+	"dateLibrary": "legacy",
+	"library": "jersey3",
+	"developerName": "Abhishek Kumar Rudra",
+	"developerEmail": "abhishek.rudra@strandls.com"
 }

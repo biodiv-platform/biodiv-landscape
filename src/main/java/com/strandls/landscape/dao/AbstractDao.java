@@ -4,95 +4,96 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.CriteriaSpecification;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 public abstract class AbstractDao<T, K extends Serializable> {
 
-
-	protected SessionFactory sessionFactory;
-	
-	protected Class<? extends T> daoType;
+	protected final SessionFactory sessionFactory;
+	protected final Class<T> daoType;
 
 	@SuppressWarnings("unchecked")
 	protected AbstractDao(SessionFactory sessionFactory) {
-		daoType = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 		this.sessionFactory = sessionFactory;
+		this.daoType = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 	}
 
 	public T save(T entity) {
-		Session session = sessionFactory.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.save(entity);
-			tx.commit();			
-		} catch (Exception e) {
-			if(tx!=null)
-				tx.rollback();
-			throw e;
-		} finally {
-			session.close();
+		try (Session session = sessionFactory.openSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				session.save(entity);
+				tx.commit();
+			} catch (Exception e) {
+				if (tx != null)
+					tx.rollback();
+				throw e;
+			}
 		}
 		return entity;
 	}
 
 	public T update(T entity) {
-		Session session = sessionFactory.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.update(entity);
-			tx.commit();			
-		} catch (Exception e) {
-			if(tx!=null)
-				tx.rollback();
-			throw e;
-		} finally {
-			session.close();
+		try (Session session = sessionFactory.openSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				session.update(entity);
+				tx.commit();
+			} catch (Exception e) {
+				if (tx != null)
+					tx.rollback();
+				throw e;
+			}
 		}
 		return entity;
 	}
 
 	public T delete(T entity) {
-		Session session = sessionFactory.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.delete(entity);
-			tx.commit();			
-		} catch (Exception e) {
-			if(tx!=null)
-				tx.rollback();
-			throw e;
-		} finally {
-			session.close();
+		try (Session session = sessionFactory.openSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				session.delete(entity);
+				tx.commit();
+			} catch (Exception e) {
+				if (tx != null)
+					tx.rollback();
+				throw e;
+			}
 		}
 		return entity;
 	}
 
 	public abstract T findById(K id);
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
 	public List<T> findAll() {
-		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(daoType);
-		List<T> entities = criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY).list();
-		session.close();
-		return entities;
+		try (Session session = sessionFactory.openSession()) {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<T> cq = cb.createQuery(daoType);
+			Root<T> root = cq.from(daoType);
+			cq.select(root).distinct(true);
+			return session.createQuery(cq).getResultList();
+		} catch (Exception e) {
+			throw new RuntimeException("Error in findAll", e);
+		}
 	}
-	
-	@SuppressWarnings({ "unchecked", "deprecation" })
-	public List<T> findAll(int limit, int offset) {
-		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(daoType)
-				.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-		session.close();
-		return criteria.setFirstResult(offset).setMaxResults(limit).list();
-	}
-	
 
+	public List<T> findAll(int limit, int offset) {
+		try (Session session = sessionFactory.openSession()) {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<T> cq = cb.createQuery(daoType);
+			Root<T> root = cq.from(daoType);
+			cq.select(root).distinct(true);
+			return session.createQuery(cq).setFirstResult(offset).setMaxResults(limit).getResultList();
+		} catch (Exception e) {
+			throw new RuntimeException("Error in findAll (paginated)", e);
+		}
+	}
 }

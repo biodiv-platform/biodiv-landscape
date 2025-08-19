@@ -16,13 +16,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.persistence.NoResultException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.json.JSONException;
@@ -37,6 +30,7 @@ import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.geoentities.ApiException;
 import com.strandls.geoentities.controllers.GeoentitiesServicesApi;
 import com.strandls.geoentities.pojo.GeoentitiesWKTData;
+import com.strandls.landscape.Headers;
 import com.strandls.landscape.dao.LandscapeDao;
 import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.pojo.FieldTemplate;
@@ -52,9 +46,15 @@ import com.strandls.landscape.service.FieldTemplateService;
 import com.strandls.landscape.service.LandscapeService;
 import com.strandls.landscape.service.PageFieldService;
 import com.strandls.landscape.service.TemplateHeaderService;
-import com.strandls.landscape.Headers;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.DownloadLogData;
+
+import jakarta.inject.Inject;
+import jakarta.persistence.NoResultException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 
 public class LandscapeServiceImpl extends AbstractService<Landscape> implements LandscapeService {
 
@@ -73,7 +73,6 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 
 	@Inject
 	private GeoentitiesServicesApi geoentitiesServicesApi;
-
 
 	@Inject
 	private UserServiceApi userService;
@@ -262,7 +261,8 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		Landscape landscape = findById(protectedAreaId);
 		Long geoEntityId = landscape.getGeoEntityId();
 		if (geoEntityId != null) {
-			Map<String, Object> thumbnailPath = geoentitiesServicesApi.getImagePathFromGeoEntities(geoEntityId + "");
+			Map<String, Object> thumbnailPath = geoentitiesServicesApi.getImagePathFromGeoEntities(geoEntityId + "")
+					.getImageUrl();
 			String uri = thumbnailPath.get("uri").toString();
 			landscape.setThumbnailPath(uri);
 		}
@@ -283,7 +283,14 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 	public List<List<Object>> getBoundingBox(Long protectedAreaId) throws ApiException {
 		Landscape landscape = findById(protectedAreaId);
 		Long geoEntityId = landscape.getGeoEntityId();
-		return geoentitiesServicesApi.getBoundingBox(geoEntityId);
+		List<List<Double>> original = geoentitiesServicesApi.getBoundingBox(geoEntityId).getBoundingBox();
+
+		List<List<Object>> result = new ArrayList<>();
+		for (List<Double> innerList : original) {
+			result.add(new ArrayList<>(innerList)); // List<Double> can be added as List<Object> this way
+		}
+
+		return result;
 	}
 
 	@Override
@@ -327,8 +334,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		return file;
 	}
 
-	private void logDownload(HttpServletRequest request, File file, String shortName, String type)
-			throws IOException {
+	private void logDownload(HttpServletRequest request, File file, String shortName, String type) throws IOException {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 		userService = headers.addUserHeaders(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		if (profile == null)
@@ -339,7 +345,7 @@ public class LandscapeServiceImpl extends AbstractService<Landscape> implements 
 		data.setFilterUrl(request.getRequestURI());
 		data.setStatus("Success");
 		data.setSourcetype("Landscape");
-		data.setNotes(shortName);	
+		data.setNotes(shortName);
 		try {
 			userService.logDocumentDownload(data);
 		} catch (Exception e) {

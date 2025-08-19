@@ -2,9 +2,6 @@ package com.strandls.landscape.service.impl;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-import javax.persistence.NoResultException;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,27 +10,30 @@ import com.strandls.landscape.pojo.FieldContent;
 import com.strandls.landscape.service.AbstractService;
 import com.strandls.landscape.service.FieldContentService;
 
-public class FieldContentServiceImpl extends AbstractService<FieldContent> implements FieldContentService{
+import jakarta.inject.Inject;
+import jakarta.persistence.NoResultException;
+
+public class FieldContentServiceImpl extends AbstractService<FieldContent> implements FieldContentService {
 
 	@Inject
 	public FieldContentServiceImpl(FieldContentDao dao) {
 		super(dao);
 	}
-	
+
 	@Override
-	public FieldContent saveOrUpdate(Long pageFieldId, Long languageId, String content) throws IOException{
+	public FieldContent saveOrUpdate(Long pageFieldId, Long languageId, String content) throws IOException {
 		FieldContent fieldContent;
 		try {
 			fieldContent = getFieldContent(pageFieldId, languageId);
 			fieldContent.setContent(content);
 			fieldContent = update(fieldContent);
-		} catch(NoResultException e) {
+		} catch (NoResultException e) {
 			fieldContent = new FieldContent(null, pageFieldId, languageId, content, false);
 			fieldContent = save(fieldContent);
 		}
 		return fieldContent;
 	}
-	
+
 	@Override
 	public FieldContent update(String jsonString) throws IOException, JSONException {
 		JSONObject jsonObject = new JSONObject(jsonString);

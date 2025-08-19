@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.strandls.landscape;
 
@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import javax.servlet.ServletContextEvent;
-
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -42,8 +40,10 @@ import com.strandls.landscape.dao.DaoModule;
 import com.strandls.landscape.service.ServiceModule;
 import com.strandls.user.controller.UserServiceApi;
 
+import jakarta.servlet.ServletContextEvent;
+
 /**
- * 
+ *
  * @author vilay
  *
  */
@@ -74,9 +74,10 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 
 				ObjectMapper objectMapper = new ObjectMapper();
 				bind(ObjectMapper.class).toInstance(objectMapper);
-				
+
 				Map<String, String> props = new HashMap<>();
-				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
+				props.put("jakarta.ws.rs.Application", ApplicationConfig.class.getName());
+				props.put("jersey.config.server.provider.packages", "com");
 				props.put("jersey.config.server.wadl.disableWadl", "true");
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
@@ -84,7 +85,7 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 				bind(Headers.class).in(Scopes.SINGLETON);
 				bind(UserServiceApi.class).in(Scopes.SINGLETON);
 				bind(ServletContainer.class).in(Scopes.SINGLETON);
-				
+
 				serve("/api/*").with(ServletContainer.class, props);
 
 			}
@@ -102,7 +103,7 @@ public class LandscapeServeletContextListener extends GuiceServletContextListene
 			Annotation[] annotations = cls.getAnnotations();
 
 			for (Annotation annotation : annotations) {
-				if (annotation instanceof javax.persistence.Entity) {
+				if (annotation instanceof jakarta.persistence.Entity) {
 					classes.add(cls);
 				}
 			}

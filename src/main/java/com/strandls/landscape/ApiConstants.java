@@ -10,8 +10,9 @@ package com.strandls.landscape;
  */
 public class ApiConstants {
 
-	private ApiConstants() {}
-	
+	private ApiConstants() {
+	}
+
 	public static final String LANDSCAPE = "/landscape";
 	public static final String PING = "/ping";
 	public static final String FIELD_TEMPLATE = "/fieldTemplate";

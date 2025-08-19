@@ -2,13 +2,13 @@ package com.strandls.landscape.dao;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
 import com.strandls.landscape.pojo.DownloadLog;
+
+import jakarta.inject.Inject;
 
 public class DownloadLogDao extends AbstractDao<DownloadLog, Long> {
 

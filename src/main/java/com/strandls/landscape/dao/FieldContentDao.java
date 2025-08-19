@@ -1,12 +1,12 @@
 package com.strandls.landscape.dao;
 
-import javax.inject.Inject;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
 import com.strandls.landscape.pojo.FieldContent;
+
+import jakarta.inject.Inject;
 
 public class FieldContentDao extends AbstractDao<FieldContent, Long> {
 

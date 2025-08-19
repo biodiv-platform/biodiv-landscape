@@ -3,13 +3,13 @@ package com.strandls.landscape.service.impl;
 import java.io.IOException;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.landscape.dao.DownloadLogDao;
 import com.strandls.landscape.pojo.DownloadLog;
 import com.strandls.landscape.service.AbstractService;
 import com.strandls.landscape.service.DownloadLogService;
+
+import jakarta.inject.Inject;
 
 public class DownloadLogServiceImpl extends AbstractService<DownloadLog> implements DownloadLogService {
 

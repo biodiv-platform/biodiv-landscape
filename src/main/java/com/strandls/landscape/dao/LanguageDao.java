@@ -1,11 +1,11 @@
 package com.strandls.landscape.dao;
 
-import javax.inject.Inject;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.strandls.landscape.pojo.Language;
+
+import jakarta.inject.Inject;
 
 public class LanguageDao extends AbstractDao<Language, Long> {
 
