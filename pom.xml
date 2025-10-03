@@ -383,6 +383,28 @@
                 </configuration>
             </plugin>
 
+			<!-- Modify OpenAPI JSON with config.properties values -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>modify-openapi-json</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.strandls.landscape.ModifyOpenApi</mainClass>
+                            <arguments>
+                                <argument>${project.build.directory}/swagger.json</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
 			<!-- Java SDK generation from swagger.json (OpenAPI v3) -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
