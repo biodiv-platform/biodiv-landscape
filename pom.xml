@@ -405,7 +405,7 @@
                 </executions>
             </plugin>
 
-			<!-- Java SDK generation from swagger.json (OpenAPI v3) -->
+			<!-- OpenAPI Generator CLI: generate SDK from swagger.json -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -414,18 +414,28 @@
                     <execution>
                         <id>generate-sdk</id>
                         <phase>package</phase>
-                        <goals><goal>java</goal></goals>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.openapitools.codegen.OpenAPIGenerator</mainClass>
+                            <arguments>
+                                <argument>generate</argument>
+                                <argument>-i</argument>
+                                <argument>${project.build.directory}/swagger.json</argument>
+                                <argument>-g</argument>
+                                <argument>java</argument>
+                                <argument>-o</argument>
+                                <argument>target/sdk</argument>
+                                <argument>--skip-validate-spec</argument>
+                                <argument>-c</argument>
+                                <argument>swagger-config.json</argument>
+                            </arguments>
+                            <includeProjectDependencies>true</includeProjectDependencies>
+                            <includePluginDependencies>true</includePluginDependencies>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <executable>java</executable>
-                    <mainClass>org.openapitools.codegen.OpenAPIGenerator</mainClass>
-                    <commandlineArgs>
-                        generate -i ${project.build.directory}/swagger.json -g java -o target/sdk --skip-validate-spec -c swagger-config.json
-                    </commandlineArgs>
-                    <includeProjectDependencies>true</includeProjectDependencies>
-                    <includePluginDependencies>true</includePluginDependencies>
-                </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>org.openapitools</groupId>
